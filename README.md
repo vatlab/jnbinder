@@ -8,7 +8,7 @@ pip3 install sos
 
 ### Step 1: install `jnbinder`
 ```bash
-wget https://github.com/gaow/jnbinder/archive/master.zip
+wget https://github.com/vatlab/jnbinder/archive/master.zip
 unzip -p master.zip jnbinder-master/release > release
 chmod +x release
 ./release setup-jnbinder
@@ -40,7 +40,7 @@ For first time users we have created an annotated demonstration: https://github.
 **Notice that these examples only demonstrate some flavors of the software**.
 You are welcome to download these examples to adapt for your project. 
 You are also encouraged to play with configurations in
-[`config.yml`](https://github.com/gaow/jnbinder/edit/master/config.yml)
+[`config.yml`](https://github.com/vatlab/jnbinder/edit/master/config.yml)
 to customize your site or the release workflow.
 
 The software is intented for my personal use but I'm happy to help if you request a feature or report a bug 
