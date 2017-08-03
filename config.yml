@@ -1,0 +1,18 @@
+include_dir: []
+# name: 'A Pet Project'
+# repo: 'http://github.com/gaow/jnbinder'
+# footer: "&copy 2016-2017 Gao Wang at Stephens Lab, University of Chicago"
+# exclude_file: []
+# hide_navbar: []
+# homepage: "Overview.ipynb"
+# add_commit_info: True
+# disqus: NULL
+# release_message: NULL # type a release message to enable auto-commit, eg: "Build website via jnbinder"
+# post_release_actions: NULL
+# homepage_label: Overview # Set to NULL to disable
+# source_label: "source" # Set to NULL to disable it; default is github octopus icon
+# theme: "cosmo" # Theme from bootstrap
+# font: "Droid Sans" # Set to NULL for theme default font
+# notebook_toc: True
+# long_autoindex: False # when set to `True` it uses the first paragraph under the title if available, instead of using the title, to make descriptions on the automatically generated for a page.
+# reverse_autoindex: [] # Directories for which auto-index be reversed. This is useful when a folder has notebook named like `20160502_XX` because it will show the newer notebook on the top.
