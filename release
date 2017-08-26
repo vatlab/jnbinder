@@ -23,7 +23,7 @@ DEFAULT_CONF = {
            'font': "Droid Sans",
            'notebook_toc': True,
            'add_commit_info': True,
-           'long_autoindex': False,
+           'long_autoindex': True,
            'reverse_autoindex': []
            }
 CONFIG.update({k:v for k,v in DEFAULT_CONF.items() if k not in CONFIG})

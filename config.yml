@@ -15,5 +15,5 @@ include_dir: []
 # theme: "cosmo" # Theme from bootstrap
 # font: "Droid Sans" # Set to NULL for theme default font
 # notebook_toc: True
-# long_autoindex: False # when set to `True` it uses the first paragraph under the title if available, instead of using the title, to make descriptions on the automatically generated for a page.
+# long_autoindex: True # when set to `True` it uses the first paragraph under the title if available, instead of using the title, to make descriptions on the automatically generated for a page.
 # reverse_autoindex: [] # Directories for which auto-index be reversed. This is useful when a folder has notebook named like `20160502_XX` because it will show the newer notebook on the top.

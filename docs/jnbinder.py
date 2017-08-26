@@ -941,9 +941,11 @@ def make_index_nb(path, exclude, long_description = False, reverse_alphabet = Fa
         try:
             source = [x.strip() for x in data["cells"][0]["source"] if x.strip()]
             if long_description and source[0].startswith('#') and len(source) >= 2 and not source[1].startswith('#'):
-                description = source[1]
+                title = source[0].lstrip('#').strip()
+                description = source[1].lstrip('#').strip()
             else:
-                description = source[0]
+                title = name.strip()
+                description = source[0].lstrip('#').strip()
         except IndexError:
             continue
         if add_date_section:
@@ -956,7 +958,7 @@ def make_index_nb(path, exclude, long_description = False, reverse_alphabet = Fa
     "### %s\\n"
    ]
   },''' % date_section
-        if name.strip() != description.strip("#").strip():
+        if title != description:
             out += '''
   {
    "cell_type": "markdown",
@@ -965,7 +967,7 @@ def make_index_nb(path, exclude, long_description = False, reverse_alphabet = Fa
     "[**%s**](%s/%s)<br>\\n",
     %s
    ]
-  },''' % (name, path, os.path.splitext(os.path.basename(fn))[0] + '.html', json.dumps("&nbsp; &nbsp;" + description.strip("#").strip()))
+  },''' % (title, path, os.path.splitext(os.path.basename(fn))[0] + '.html', json.dumps("&nbsp; &nbsp;" + description))
         else:
             out += '''
   {
@@ -974,7 +976,7 @@ def make_index_nb(path, exclude, long_description = False, reverse_alphabet = Fa
    "source": [
     "[**%s**](%s/%s)<br>"
    ]
-  },''' % (name, path, os.path.splitext(os.path.basename(fn))[0] + '.html')
+  },''' % (title, path, os.path.splitext(os.path.basename(fn))[0] + '.html')
     if len(sos_files):
         out += '''
   {
