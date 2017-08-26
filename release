@@ -13,6 +13,7 @@ DEFAULT_CONF = {
            'exclude_file': [],
            'hide_navbar': [],
            'disqus': None,
+           'report_style': True,
            'release_message': None,
            'post_release_actions': None,
            'homepage_label': "Overview",

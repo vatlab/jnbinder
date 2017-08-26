@@ -6,6 +6,7 @@ include_dir: []
 # hide_navbar: []
 # homepage: "Overview.ipynb"
 # add_commit_info: True
+# report_style: True
 # disqus: NULL
 # release_message: NULL # type a release message to enable auto-commit, eg: "Build website via jnbinder"
 # post_release_actions: NULL
