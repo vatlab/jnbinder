@@ -49,7 +49,7 @@ def get_commit_info(fn, conf):
                        format(get_output('git log -n 1 --format="%an" {}'.format(long_fmt)),
                               get_output('git show -s --format="%cd" --date=local {}'.format(long_fmt)),
                               get_commit_link(conf['repo'], long_fmt),
-                              get_output('git rev-list --count {}'.format(long_fmt)), short_fmt)
+                              get_output('git log --oneline {} | wc -l'.format(fn)), short_fmt)
             out = '<p><small>Exported from {} committed {} {}</small></p>'.\
                   format(get_notebook_link(conf['repo'], long_fmt, fn), rev_string,
                          '<a href=\\"{}\\">{}</a>'.\
