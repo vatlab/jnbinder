@@ -4,8 +4,7 @@
 sys.path.append('docs')
 
 from sos.utils import load_config_files
-if os.path.exists('config.yml'):
-   CONFIG.update(load_config_files('config.yml'))
+CONFIG.update(load_config_files('config.yml'))
 
 DEFAULT_CONF = {
            '__version__': '0.9.2',
@@ -70,7 +69,7 @@ run:
 [check-link (Broken link checker)]
 depends: executable('linkchecker')
 run: expand = "${ }"
-  linkchecker http://${CONFIG['repo']:db}.github.io/${CONFIG['repo']:b}
+  linkchecker http://${path(CONFIG['repo']):db}.github.io/${path(CONFIG['repo']):b}
 
 [update-tpl (Jupyter HTML template updater)]
 input: None
