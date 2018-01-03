@@ -144,7 +144,7 @@ with open(_output, 'w') as f:
   f.write('\n'.join(['\n'.join(x) for x in out]))
 
 [remove-obsolete (Obsolete files remover)]
-depends: sos_step('init')
+depends: sos_variable('generated_files')
 input: None
 output: 'docs/MANIFEST'
 if os.path.isfile(_output):
@@ -154,7 +154,7 @@ with open(_output, 'w') as f:
   f.write('\n'.join(sorted(generated_files)))
 
 [release-website (gh-pages uploader)]
-depends: sos_step('init')
+depends: sos_variable('conf')
 stop_if(conf['release_message'] is None)
 try:
   run(f'''cd docs && git add . && git commit --no-verify -m "{conf['release_message']}" && git push --no-verify''')
@@ -164,7 +164,7 @@ except:
 
 [clean]
 # remove generated files
-depends: sos_step('init')
+depends: sos_variable('generated_files')
 run(f"rm -f {paths(generated_files)}")
 
 [default_1]
@@ -195,6 +195,6 @@ sos_run('release-website')
 
 [default_2]
 # remove intermediate files
-depends: sos_step('init')
+depends: sos_variable('binders')
 run: expand = True
   rm -f {[binder + '/_index.ipynb' for binder in binders]}
