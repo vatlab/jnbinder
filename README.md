@@ -39,11 +39,15 @@ where `-J 10` means running 10 conversion commands in parallel -- useful when th
 
 For first time users we have created an annotated demonstration: https://github.com/stephenslab/ipynb-website 
 
-**Notice that these examples only demonstrate some flavors of the software**.
-You are welcome to download these examples to adapt for your project. 
+**Notice that the demonstration site only shows some aspects of the software**.
+You are welcome to download the demonstration to adapt for your project. 
 You are also encouraged to play with configurations in
-[`config.yml`](https://github.com/vatlab/jnbinder/edit/master/config.yml)
+[`config.yml`](https://github.com/vatlab/jnbinder/blob/master/config.yml)
 to customize your site or the release workflow.
 
 The software is intented for my personal use but I'm happy to help if you request a feature or report a bug 
 (it is not fully documented so do not worry about requesting for features that already exist!).
+
+Here are some more examples of generated research websites in use:
+
+* https://gaow.github.io/mvarbvs
