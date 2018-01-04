@@ -1,6 +1,6 @@
 ## A simple pipeline to generate website from Jupyter notebooks
 
-Copyright 2016, Gao Wang
+Copyright 2016 Gao Wang
 
 ### Step 0: install SoS library
 
