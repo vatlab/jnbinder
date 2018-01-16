@@ -138,7 +138,7 @@ bash: expand = "${ }"
 [update-wf (Pipeline to HTML converter)]
 stop_if(len(pipeline_files) == 0)
 input: pipeline_files, group_by = 1
-output: [f"docs/{x.replace('.ipynb', '.html')}" for x in pipeline_files], group_by = 1
+output: [f"docs/{x.replace('.sos', '.html')}" for x in pipeline_files], group_by = 1
 task:
 bash: expand = "${ }"
   sos convert ${_input} ${_output} --style tango --lineno
