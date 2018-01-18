@@ -39,7 +39,7 @@ except Exception as e:
 if compare_versions(SOS_VERSION, '0.9.10.17') < 0:
   sos_run("upgrade-sos")
   stop_if(1, msg = 'Upgrade complete. Please rerun this script to load the upgrades.')
-if len(glob('.sos/*')) and os.path.isdir(".git"):
+if len(glob.glob('.sos/*')) and os.path.isdir(".git"):
    update_gitignore()
 #
 from sos.utils import load_config_files
