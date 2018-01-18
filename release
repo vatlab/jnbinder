@@ -28,7 +28,9 @@ DEFAULT_CONF = {
            'reverse_autoindex': [],
            'remove_whiteline': False
            }
-
+if not os.path.isdir(".sos") and os.path.isdir(".git"):
+   from jnbinder import update_gitignore
+   update_gitignore()
 from sos.utils import load_config_files
 conf = load_config_files('config.yml')
 conf.update({k:v for k,v in DEFAULT_CONF.items() if k not in conf})
@@ -164,16 +166,6 @@ run(f"rm -f {paths(generated_files)}")
 
 [default_1 (Build website)]
 # build ipynb website ...
-
-flag = True
-if os.path.isfile('.gitignore'):
-  lines = [x.strip() for x in open('.gitignore').readlines()]
-  if '**/.sos' in lines:
-    flag = False
-if flag:
-  with open('.gitignore', 'a') as f:
-    f.write('\n**/.sos\n**/.ipynb_checkpoints\ndocs/__pycache__')
-
 err_msg1 = '''
 No valid path found in `include_dir`!
 Please properly set `include_dir` in `config.yml`.
