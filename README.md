@@ -5,7 +5,7 @@ Copyright 2016 Gao Wang
 ### Step 0: install SoS library
 
 ```
-pip3 install sos
+pip install --user sos-essentials
 ```
 
 ### Step 1: install `jnbinder`
