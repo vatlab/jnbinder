@@ -3,7 +3,7 @@
 
 sys.path.append('docs')
 
-[default_0: shared = ['conf', 'binders', 'notebook_files', 'index_files', 'pipeline_files', 'generated_files']]
+[default_0 (Configure website): shared = ['conf', 'binders', 'notebook_files', 'index_files', 'pipeline_files', 'generated_files']]
 DEFAULT_CONF = {
            '__version__': '0.9.3',
            '__about_commit__': 'https://stephenslab.github.io/ipynb-website/notes.html#Note-about-commit-ids',
@@ -162,7 +162,7 @@ except:
 depends: sos_variable('generated_files')
 run(f"rm -f {paths(generated_files)}")
 
-[default_1]
+[default_1 (Build website)]
 # build ipynb website ...
 
 flag = True
