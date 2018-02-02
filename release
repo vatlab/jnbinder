@@ -13,6 +13,7 @@ DEFAULT_CONF = {
            'include_dir': [],
            'exclude_file': [],
            'hide_navbar': [],
+           'protected_page': [],
            'disqus': None,
            'report_style': False,
            'release_message': None,
@@ -36,7 +37,7 @@ except Exception as e:
      stop_if(1, msg = 'Installation complete. Please rerun this script.')
   else:
      raise RuntimeError('{}. You can try `pip install` to install the missing module.'.format(e))
-if compare_versions(SOS_VERSION, '0.9.10.17') < 0:
+if compare_versions(SOS_VERSION, '0.9.10.18') < 0:
   sos_run("upgrade-sos")
   stop_if(1, msg = 'Upgrade complete. Please rerun this script to load the upgrades.')
 if len(glob.glob('.sos/*')) and os.path.isdir(".git"):
@@ -46,7 +47,7 @@ from sos.utils import load_config_files
 conf = load_config_files('config.yml')
 conf.update({k:v for k,v in DEFAULT_CONF.items() if k not in conf})
 conf['jt_theme'] = conf['theme'] if os.path.isfile(f"docs/css/{conf['theme']}.css") else None
-for k in ['include_dir', 'hide_navbar', 'exclude_file', 'reverse_autoindex']:
+for k in ['include_dir', 'hide_navbar', 'exclude_file', 'protected_page', 'reverse_autoindex']:
     conf[k] = [os.path.normpath(x) for x in conf[k]]
 conf['remove_whiteline'] = 1 if conf['remove_whiteline'] else 0
 binders = [x for x in conf['include_dir'] if os.path.isdir(x)]
@@ -110,9 +111,8 @@ if not os.path.isfile(conf['homepage']):
 
 [update-hp (Index HTML updater)]
 depends: sos_step("update-tpl"), sos_step("update-index"), executable('jupyter')
-input: dynamic(index_files + [conf['homepage']]), group_by = 1
+input: dynamic(index_files + [conf['homepage']]), group_by = 1, concurrent = True
 output: [f'docs/{x}.html' for x in binders if x not in conf['hide_navbar']] + ['docs/index.html'], group_by = 1
-task:
 bash: expand = "${ }"
   jupyter nbconvert ${_input:e} --output ${_output:ae} --template docs/index.tpl
   # sed -i 's/<div class="prompt input_prompt">In&nbsp;\[[0-9]\]:<\/div>//g' ${_output:e}
@@ -125,9 +125,8 @@ depends: sos_step("update-tpl"), executable('jupyter')
 stop_if(len(notebook_files) == 0)
 from jnbinder import get_commit_info
 nb_info = [get_commit_info(x, conf) for x in notebook_files]
-input: notebook_files, group_by = 1, paired_with = ['nb_info']
+input: notebook_files, group_by = 1, paired_with = ['nb_info'], concurrent = True
 output: [f"docs/{x.replace('.ipynb', '.html')}" for x in notebook_files], group_by = 1
-task:
 bash: expand = "${ }"
   jupyter nbconvert ${_input:e} --output ${_output:ae} --template docs/${_input:d}.tpl
   num=`grep -n -Fx '''${conf['footer']}''' ${_output:e} | tail -1 | sed 's/\([0-9]*\).*/\1/'`
@@ -138,9 +137,8 @@ bash: expand = "${ }"
 
 [update-wf (Pipeline to HTML converter)]
 stop_if(len(pipeline_files) == 0)
-input: pipeline_files, group_by = 1
+input: pipeline_files, group_by = 1, concurrent = True
 output: [f"docs/{x.replace('.sos', '.html')}" for x in pipeline_files], group_by = 1
-task:
 bash: expand = "${ }"
   sos convert ${_input} ${_output} --style tango --lineno
 
