@@ -126,8 +126,9 @@ if not os.path.isfile(conf['homepage']):
 
 [update-hp (Index HTML updater)]
 depends: sos_step("update-tpl"), sos_step("update-index"), executable('jupyter')
-input: dynamic(index_files + [conf['homepage']]), group_by = 1, concurrent = True
+input: dynamic(index_files + [conf['homepage']]), group_by = 1
 output: [f'docs/{x}.html' for x in binders if x not in conf['hide_navbar']] + ['docs/index.html'], group_by = 1
+task: concurrent = True
 bash: expand = "${ }"
   jupyter nbconvert ${_input:e} --output ${_output:ae} --template docs/index.tpl 2> /dev/null
   # sed -i 's/<div class="prompt input_prompt">In&nbsp;\[[0-9]\]:<\/div>//g' ${_output:e}
@@ -150,8 +151,9 @@ depends: sos_step("update-tpl"), executable('jupyter')
 stop_if(len(notebook_files) == 0)
 from jnbinder import get_commit_info
 nb_info = [get_commit_info(x, conf) for x in notebook_files]
-input: notebook_files, group_by = 1, paired_with = ['nb_info'], concurrent = True
+input: notebook_files, group_by = 1, paired_with = ['nb_info']
 output: [f"docs/{x.replace('.ipynb', '.html')}" for x in notebook_files], group_by = 1
+task: concurrent = True
 bash: expand = "${ }"
   jupyter nbconvert ${_input:e} --output ${_output:ae} --template docs/${_input:d}.tpl 2> /dev/null
   num=`grep -n -Fx '''${conf['footer']}''' ${_output:e} | tail -1 | sed 's/\([0-9]*\).*/\1/'`
