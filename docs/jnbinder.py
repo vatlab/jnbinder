@@ -1085,7 +1085,7 @@ def make_empty_nb(name):
 
 def protect_page(page, page_dir, page_tpl, password):
     secret = page_dir + '/' + sha1(password.encode()).hexdigest() + '_' + \
-             + sha1(os.path.split(page)[-1].encode()).hexdigest()
+             sha1(os.path.split(page)[-1].encode()).hexdigest() + '.html'
     content = open(page).readlines()
     content.insert(5, '<meta name="robots" content="noindex">\n')
     with open(secret, 'w') as f:
