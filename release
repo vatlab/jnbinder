@@ -102,7 +102,7 @@ bash:
 [upgrade-sos (SoS upgrader)]
 # using latest pip release
 bash:
-  pip install --upgrade --upgrade-strategy only-if-needed --no-cache-dir --user sos sos-notebook sos-bash sos-python
+  pip install --upgrade --upgrade-strategy only-if-needed --no-cache-dir --user sos sos-notebook sos-bash sos-python sos-r
 
 [check-link (Broken link checker)]
 depends: executable('linkchecker'), sos_variable('conf')
