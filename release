@@ -79,10 +79,12 @@ bash:
   rm -rf jnbinder-master*
 
 [upgrade-jnbinder]
+# only update jnbinder, not the CSS files
 depends: 'jnbinder-master/README.md'
 bash:
   cp jnbinder-master/docs/jnbinder.py docs
-  cp jnbinder-master/docs/site_libs/jnbinder_password.html docs/css
+  cp jnbinder-master/docs/site_libs/jnbinder_password.html docs/site_libs
+  cp jnbinder-master/docs/js/* docs/js
   if [ -f release.sos ]; then
      cp jnbinder-master/release ./release.sos
   else
