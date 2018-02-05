@@ -1084,7 +1084,7 @@ def make_empty_nb(name):
 }''' % name
 
 def protect_page(page, page_dir, page_tpl, password):
-    secret = page_dir + '/' + sha1(b'{}'.format(password)).hexdigest()
+    secret = page_dir + '/' + sha1(password.encode()).hexdigest()
     os.makedirs(secret, exist_ok=True)
-    os.rename(page, f'{secret}/index.html')
+    os.rename(page, f'{secret}/{os.path.split(page)[-1]}')
     copyfile(page_tpl, page)

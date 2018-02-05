@@ -3,7 +3,7 @@
 
 sys.path.append('docs')
 
-[default_0 (Configure website): shared = ['conf', 'binders', 'notebook_files', 'index_files', 'pipeline_files', 'generated_files', 'password']]
+[default_0 (Configure website): shared = ['conf', 'binders', 'notebook_files', 'index_files', 'pipeline_files', 'generated_files', 'password', 'status']]
 DEFAULT_CONF = {
            '__version__': '0.9.3',
            '__about_commit__': 'https://stephenslab.github.io/ipynb-website/notes.html#Note-about-commit-ids',
@@ -30,19 +30,22 @@ DEFAULT_CONF = {
            'remove_whiteline': False,
            'password_file': None
            }
+status = 0
 try:
   from jnbinder import compare_versions, update_gitignore
 except Exception as e:
   if 'jnbinder' in str(e):
      sos_run('setup-jnbinder')
-     stop_if(1, msg = 'Installation complete. Please rerun this script.')
+     status = 1
+     stop_if(status, msg = 'Installation complete. Please rerun this script.')
   else:
      raise RuntimeError('{}. You can try `pip install` to install the missing module.'.format(e))
 if len(glob.glob('.sos/*')) and os.path.isdir(".git"):
    update_gitignore()
-if compare_versions(SOS_VERSION, '0.9.11.2') < 0:
+if compare_versions(SOS_VERSION, '0.9.10.17') < 0:
   sos_run("upgrade-sos")
-  stop_if(1, msg = 'Upgrade complete. Please rerun this script to load the upgrades.')
+  status = 1
+  stop_if(status, msg = 'Upgrade complete. Please rerun this script to load the upgrades.')
 #
 import yaml
 with open('config.yml', 'r') as f:
@@ -60,7 +63,7 @@ pipeline_files = sum([[y for y in glob.glob(f"{x}/*.sos") if y not in conf['excl
 generated_files = [f'docs/{x}.html' for x in binders if x not in conf['hide_navbar']] + ['docs/index.html'] + ['docs/' + x.replace('.ipynb', '.html') for x in notebook_files] + ['docs/' + x.replace('.sos', '.pipeline.html') for x in pipeline_files] + ['docs/js/docs.js', 'docs/index.tpl'] + [f"docs/{x}.tpl" for x in binders]
 if conf['password_file'] is not None and os.path.isfile(conf['password_file']):
    with open(conf['password_file']) as f:
-        password = {os.path.abspath(os.path.expanduser(k)): v for k, v in yaml.load(f).items}
+        password = {os.path.abspath(os.path.expanduser(k)): v for k, v in yaml.load(f).items()}
 else:
    password = None
 
@@ -79,7 +82,7 @@ bash:
 depends: 'jnbinder-master/README.md'
 bash:
   cp jnbinder-master/docs/jnbinder.py docs
-  cp jnbinder-master/docs/css/* docs/css
+  cp jnbinder-master/docs/site_libs/jnbinder_password.html docs/css
   if [ -f release.sos ]; then
      cp jnbinder-master/release ./release.sos
   else
@@ -118,8 +121,9 @@ if not os.path.isfile(conf['homepage']):
 
 [update-hp (Index HTML updater)]
 depends: sos_step("update-tpl"), sos_step("update-index"), executable('jupyter')
-input: dynamic(index_files + [conf['homepage']]), group_by = 1, concurrent = True
+input: dynamic(index_files + [conf['homepage']]), group_by = 1
 output: [f'docs/{x}.html' for x in binders if x not in conf['hide_navbar']] + ['docs/index.html'], group_by = 1
+#task: concurrent = True
 bash: expand = "${ }"
   jupyter nbconvert ${_input:e} --output ${_output:ae} --template docs/index.tpl
   # sed -i 's/<div class="prompt input_prompt">In&nbsp;\[[0-9]\]:<\/div>//g' ${_output:e}
@@ -136,8 +140,9 @@ depends: sos_step("update-tpl"), executable('jupyter')
 stop_if(len(notebook_files) == 0)
 from jnbinder import get_commit_info
 nb_info = [get_commit_info(x, conf) for x in notebook_files]
-input: notebook_files, group_by = 1, paired_with = ['nb_info'], concurrent = True
+input: notebook_files, group_by = 1, paired_with = ['nb_info']
 output: [f"docs/{x.replace('.ipynb', '.html')}" for x in notebook_files], group_by = 1
+#task: concurrent = True
 bash: expand = "${ }"
   jupyter nbconvert ${_input:e} --output ${_output:ae} --template docs/${_input:d}.tpl
   num=`grep -n -Fx '''${conf['footer']}''' ${_output:e} | tail -1 | sed 's/\([0-9]*\).*/\1/'`
@@ -148,12 +153,13 @@ bash: expand = "${ }"
 
 stop_if(password is None or f'{_input:a}' not in password)
 from jnbinder import protect_page
-protect_page(f'{_output:ae}', f'{_output:ad}', 'docs/site_libs/jnbinder_password.html', password[f'{_input:ad}'])
+protect_page(f'{_output:ae}', f'{_output:ad}', 'docs/site_libs/jnbinder_password.html', password[f'{_input:a}'])
 
 [update-wf (Pipeline to HTML converter)]
 stop_if(len(pipeline_files) == 0)
-input: pipeline_files, group_by = 1, concurrent = True
+input: pipeline_files, group_by = 1
 output: [f"docs/{x.replace('.sos', '.html')}" for x in pipeline_files], group_by = 1
+#task: concurrent = True
 bash: expand = "${ }"
   sos convert ${_input} ${_output} --style tango --lineno
 
@@ -199,12 +205,14 @@ To properly add notebook version info, all changes made to notebooks must be com
 Please use `git commit` to commit changes and run this command again. Or you may
 set `add_commit_info: False` in `config.yml` if you want to disable this feature.
 '''
+stop_if(status)
 fail_if(len(binders) == 0, msg = err_msg1)
 fail_if(os.path.isdir('.git') and 'ipynb' in get_output('git status --untracked-files=no --porcelain') and conf['add_commit_info'], msg = err_msg2)
-sos_run('update-hp + update-nb + update-wf + update-toc + remove-obsolete', conf=conf, binders=binders, notebook_files=notebook_files, index_files=index_files, pipeline_files=pipeline_files, generated_files=generated_files)
+sos_run('update-hp + update-nb + update-wf + update-toc + remove-obsolete', conf=conf, binders=binders, notebook_files=notebook_files, index_files=index_files, pipeline_files=pipeline_files, generated_files=generated_files, password = password)
 sos_run('release-website')
 
 [default_2]
 # remove intermediate files
+stop_if(status)
 bash: expand = True
   rm -f {paths([binder + '/_index.ipynb' for binder in binders])}
