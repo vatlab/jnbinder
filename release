@@ -131,9 +131,9 @@ bash: expand = "${ }"
      perl -i -ne 'print if /\S/' ${_output:e}
   fi
 
-stop_if(password is None or f'{_input:ad}' not in password)
+stop_if(password is None or (f'{_input:ad}' not in password and f'{_input:a}' not in password))
 from jnbinder import protect_page
-protect_page(f'{_output:ae}', f'{_output:ad}', 'docs/site_libs/jnbinder_password.html', password[f'{_input:ad}'])
+protect_page(f'{_output:ae}', f'{_output:ad}', 'docs/site_libs/jnbinder_password.html', password[f'{_input:ad}' if f'{_input:ad}' in password else f'{_input:a}'])
 
 [update-nb (Notebook to HTML converter)]
 depends: sos_step("update-tpl"), executable('jupyter')
