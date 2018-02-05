@@ -13,7 +13,6 @@ DEFAULT_CONF = {
            'include_dir': [],
            'exclude_file': [],
            'hide_navbar': [],
-           'protected_page': [],
            'disqus': None,
            'report_style': False,
            'release_message': None,
@@ -52,8 +51,12 @@ with open('config.yml', 'r') as f:
     conf = yaml.load(f)
 conf.update({k:v for k,v in DEFAULT_CONF.items() if k not in conf})
 conf['jt_theme'] = conf['theme'] if os.path.isfile(f"docs/css/{conf['theme']}.css") else None
-for k in ['include_dir', 'hide_navbar', 'exclude_file', 'protected_page', 'reverse_autoindex']:
+for k in ['include_dir', 'hide_navbar', 'exclude_file', 'reverse_autoindex']:
     conf[k] = [os.path.normpath(x) for x in conf[k]]
+for item in conf['include_dir']:
+    if os.path.basename(item) in ['css', 'fonts', 'js', 'site_libs', 'docs']:
+       status = 1
+       stof_if(stats, msg = f'Folder name ``{item}`` conflicts with website library paths. Please use a different name.')
 conf['remove_whiteline'] = 1 if conf['remove_whiteline'] else 0
 binders = [x for x in conf['include_dir'] if os.path.isdir(x)]
 # binders = [x for x in next(os.walk('./'))[1] if x not in conf['exclude_dir'] + ['docs'] and not x.startswith('.')]
@@ -95,7 +98,7 @@ bash:
 [upgrade-sos (SoS upgrader)]
 # using latest pip release
 bash:
-  pip install --upgrade --upgrade-strategy only-if-needed --no-cache-dir --user sos-essentials
+  pip install --upgrade --upgrade-strategy only-if-needed --no-cache-dir --user sos sos-notebook sos-bash sos-python
 
 [check-link (Broken link checker)]
 depends: executable('linkchecker'), sos_variable('conf')
@@ -135,7 +138,8 @@ bash: expand = "${ }"
 
 stop_if(password is None or (f'{_input:ad}' not in password and f'{_input:a}' not in password))
 from jnbinder import protect_page
-protect_page(f'{_output:ae}', f'{_output:ad}', 'docs/site_libs/jnbinder_password.html', password[f'{_input:ad}' if f'{_input:ad}' in password else f'{_input:a}'])
+new_page = protect_page(f'{_output:ae}', f'{_output:ad}', 'docs/site_libs/jnbinder_password.html', password[f'{_input:ad}' if f'{_input:ad}' in password else f'{_input:a}'])
+open(f'docs/{new_page:n}_{_output:db}.sha1', 'w').write('f{new_page.split('_')[0]})
 
 [update-nb (Notebook to HTML converter)]
 depends: sos_step("update-tpl"), executable('jupyter')
@@ -155,7 +159,8 @@ bash: expand = "${ }"
 
 stop_if(password is None or f'{_input:a}' not in password)
 from jnbinder import protect_page
-protect_page(f'{_output:ae}', f'{_output:ad}', 'docs/site_libs/jnbinder_password.html', password[f'{_input:a}'])
+new_page = protect_page(f'{_output:ae}', f'{_output:ad}', 'docs/site_libs/jnbinder_password.html', password[f'{_input:a}'])
+open(f'docs/{new_page:n}_{_output:db}.sha1', 'w').write('f{new_page.split('_')[0]})
 
 [update-wf (Pipeline to HTML converter)]
 stop_if(len(pipeline_files) == 0)
@@ -178,9 +183,10 @@ input: None
 output: 'docs/MANIFEST'
 if os.path.isfile(_output):
   old_files = [x.strip() for x in open(_output).readlines()]
-  run(f"rm -f {paths([x for x in old_files if not x in generated_files])}")
+  sha1_files = [f'docs/{item.rsplit(1)[-1][:-5]}/{item.rsplit(1)[0]}.html' if item.rsplit(1)[-1][:-5] != 'docs' else f'docs/{item.rsplit(1)[0]}.html' for item in glob.glob('docs/*.sha1')] 
+  run(f"rm -f {paths([x for x in old_files if not x in generated_files + sha1_files]) + paths(glob.glob('docs/*.sha1'))}")
 with open(_output, 'w') as f:
-  f.write('\n'.join(sorted(generated_files)))
+  f.write('\n'.join(sorted(generated_files + sha1_files)))
 
 [release-website (gh-pages uploader)]
 depends: sos_variable('conf')
