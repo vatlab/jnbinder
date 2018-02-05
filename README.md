@@ -24,14 +24,14 @@ See the template `config.yml` file in this repo. Particularly, configure `includ
 
 ### Step 4: build website
 ```
-./release -J 10
+./release -j 10
 ```
 Or, when things go wrong (pages not updated as expected).
 
 ```
-./release -s force -J 10
+./release -s force -j 10
 ```
-where `-J 10` means running 10 conversion commands in parallel -- useful when there is a lot of notebooks to bind.
+where `-j 10` means running 10 conversion commands in parallel -- useful when there is a lot of notebooks to bind.
 ### Mics: upgrade `jnbinder`
 ```
 ./release upgrade-jnbinder
