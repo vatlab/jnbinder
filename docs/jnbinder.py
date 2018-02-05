@@ -3,7 +3,6 @@ import glob
 import re
 import json
 from hashlib import sha1
-from shutil import copyfile
 from dateutil.parser import parse
 
 def is_date(string):
@@ -1083,12 +1082,16 @@ def make_empty_nb(name):
  "nbformat_minor": 2
 }''' % name
 
-def protect_page(page, page_dir, page_tpl, password):
-    secret = page_dir + '/' + sha1(password.encode()).hexdigest() + '_' + \
-             sha1(os.path.split(page)[-1].encode()).hexdigest() + '.html'
+def protect_page(page, page_tpl, password):
+    # page: docs/{name}
+    page_dir, page_file = os.path.split(page)
+    page_file = '/'.join(page.split('/')[1:])
+    secret = page_dir + '/' + sha1((password + page_file).encode()).hexdigest() + '.html'
     content = open(page).readlines()
     content.insert(5, '<meta name="robots" content="noindex">\n')
     with open(secret, 'w') as f:
         f.write(''.join(content))
-    copyfile(page_tpl, page)
+    content = open(page_tpl).readlines()
+    with open(page, 'w') as f:
+        f.write(''.join(content).replace("TPL_PLACEHOLDER", page_file))
     return os.path.basename(secret)
