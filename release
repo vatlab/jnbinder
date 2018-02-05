@@ -220,7 +220,7 @@ set `add_commit_info: False` in `config.yml` if you want to disable this feature
 stop_if(status)
 fail_if(len(binders) == 0, msg = err_msg1)
 fail_if(os.path.isdir('.git') and 'ipynb' in get_output('git status --untracked-files=no --porcelain') and conf['add_commit_info'], msg = err_msg2)
-sos_run('update-hp + update-nb + update-wf + update-toc', conf=conf, binders=binders, notebook_files=notebook_files, index_files=index_files, pipeline_files=pipeline_files, generated_files=generated_files, password = password)
+sos_run('update-hp + update-nb + update-wf + update-toc', conf=conf, binders=binders, notebook_files=notebook_files, index_files=index_files, pipeline_files=pipeline_files, generated_files=generated_files, password=password)
 sos_run('remove-obsolete', generated_files=generated_files)
 sos_run('release-website')
 
