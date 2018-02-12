@@ -5233,12 +5233,6 @@ span.save_widget span.filename:hover {
     text-align: center !important;
     margin: 0em !important;
 }
-/* Prevents MathJax from jittering */
-/* cell position when cell is selected */
-.MathJax:focus, body :focus .MathJax {
-    display: inline-block !important;
-}
-
 
 /* Overrides of notebook CSS for static HTML export */
 body {
