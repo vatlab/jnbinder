@@ -912,9 +912,9 @@ def get_index_toc(path):
         data = json.load(f)
     for cell in data['cells']:
         for sentence in cell["source"]:
-            doc = re.search('(.+?)/(.+?).html', sentence)
+            doc = re.search('^.*\/(.+?).html', sentence)
             if doc:
-                res.append(doc.group(2))
+                res.append(doc.group(1))
     # Filter by reference index
     if not fi == fr:
         ref = []
@@ -922,9 +922,9 @@ def get_index_toc(path):
             data = json.load(f)
         for cell in data['cells']:
             for sentence in cell["source"]:
-                doc = re.search('(.+?)/(.+?).html', sentence)
+                doc = re.search('^.*\/(.+?).html', sentence)
                 if doc:
-                    ref.append(doc.group(2))
+                    ref.append(doc.group(1))
         res = [x for x in res if x in ref]
     return out + repr(res)
 
