@@ -765,7 +765,6 @@ if (window.hljs && document.readyState && document.readyState === "complete") {
 }
 </script>
 
-<script src="../js/toc2.js"></script>
 <script src="../js/doc_toc.js"></script>
 <script src="../js/docs.js"></script>
 
