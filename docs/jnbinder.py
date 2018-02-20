@@ -96,7 +96,7 @@ def get_nav(dirs, home_label, prefix = './'):
 <li>
   <a href="{}{}.html">{}</a>
 </li>
-        '''.format(prefix, item, item.capitalize())
+        '''.format(prefix, item, ' '.join([x.capitalize() for x in item.split('_')]))
     return out
 
 def get_right_nav(repo, source_label):
