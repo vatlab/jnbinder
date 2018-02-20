@@ -145,9 +145,9 @@ var create_toc_div = function (cfg, st) {
             .addClass("header")
             .append(
                 $("<img/>", {
-                    src: 'http://vatlab.github.io/sos-docs/img/sos_icon.svg'
+                    src: '../site_libs/home.svg'
                 })
-                .attr("href", "http://vatlab.github.io/sos-docs/index.html#documentation")
+                .attr("href", "../index.html")
                 .attr('height', '32')
                 .attr('width', '32')
                 .attr('style', "border:0px;margin-right:5px;vertical-align:bottom")
@@ -156,7 +156,7 @@ var create_toc_div = function (cfg, st) {
                 .html("&nbsp;&nbsp")
             ).append(
                 $("<a/>")
-                .attr("href", "http://vatlab.github.io/sos-docs/index.html#documentation")
+                .attr("href", "../index.html")
                 .text("Home")
             ).append($("<form/>").attr('class', 'search-form').attr('action', '../../search.html')
                 .append($("<input/>").attr("type", "text").attr('name', 'q').attr('id', 'tipue_search_input').attr('style', 'width:95%;margin-top:9px').attr('placeholder', 'search').attr('pattern', '.{3,}')))
