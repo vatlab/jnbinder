@@ -1967,7 +1967,7 @@ h3:hover .anchor-link,
 h4:hover .anchor-link,
 h5:hover .anchor-link,
 h6:hover .anchor-link {
-  visibility: hidden;
+  visibility: visible;
 }
 .text_cell.rendered .input_area {
   display: none;
