@@ -43,14 +43,19 @@ except Exception as e:
      raise RuntimeError('{}. You can try `pip install` to install the missing module.'.format(e))
 if len(glob.glob('.sos/*')) and os.path.isdir(".git"):
    update_gitignore()
-if compare_versions(SOS_VERSION, '0.9.12.2') < 0:
+if compare_versions(SOS_VERSION, '0.9.12.6') < 0:
   sos_run("upgrade-sos")
   status = 1
   stop_if(status, msg = 'Upgrade complete. Please rerun this script to load the upgrades.')
 #
+err_msg = '''
+No valid path found in ``include_dir``
+Please properly set ``"include_dir"`` in ``config.yml``
+'''
 import yaml
 with open('config.yml', 'r') as f:
     conf = yaml.load(f)
+fail_if(conf is None, msg = err_msg)
 conf.update({k:v for k,v in DEFAULT_CONF.items() if k not in conf})
 conf['jt_theme'] = conf['theme'] if os.path.isfile(f"docs/css/{conf['theme']}.css") else None
 for k in ['include_dir', 'hide_navbar', 'exclude_file', 'reverse_autoindex']:
@@ -64,10 +69,6 @@ if conf['site_url'] is None:
    conf['site_url'] = f"http://{path(conf['repo']):db}.github.io/{path(conf['repo']):b}"
 binders = [x for x in conf['include_dir'] if os.path.isdir(x)]
 # binders = [x for x in next(os.walk('./'))[1] if x not in conf['exclude_dir'] + ['docs'] and not x.startswith('.')]
-err_msg = '''
-No valid path found in ``include_dir``!
-Please properly set ``include_dir`` in ``config.yml``
-'''
 fail_if(len(binders) == 0, msg = err_msg)
 notebook_files = sum([[y for y in glob.glob(f"{x}/*.ipynb") if y not in [f"{x}/index.ipynb", f"{x}/_index.ipynb", conf['homepage']] + conf['exclude_file']] for x in binders], [])
 index_files = [f'{x}/index.ipynb' if os.path.isfile(f'{x}/index.ipynb') else f'{x}/_index.ipynb' for x in binders if x not in conf['hide_navbar']]

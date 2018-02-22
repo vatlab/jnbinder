@@ -5,7 +5,7 @@ Copyright 2016 Gao Wang
 ### Step 0: install SoS library
 
 ```
-pip install --user sos-essentials
+pip install --user sos sos-notebook
 ```
 
 ### Step 1: install `jnbinder`
@@ -48,6 +48,6 @@ to customize your site or the release workflow.
 The software is intented for my personal use but I'm happy to help if you request a feature or report a bug 
 (it is not fully documented so do not worry about requesting for features that already exist!).
 
-Here are some more examples of generated research websites in use:
+Here are more examples of generated research websites:
 
 * https://gaow.github.io/mvarbvs
