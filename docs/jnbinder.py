@@ -155,7 +155,7 @@ $( document ).ready(function(){
                   var name=docs[a]
                   $(".toc #toc-level0").append('<li><a href="'+name+'.html"><font color="#073642"><b>'+name.replace(/_/g," ")+'</b></font></a></li>');
             }
-            $("#toc-header").hide();
+            // $("#toc-header").hide(); // comment out because it prevents search bar from displaying
     });
 </script>
 ''' % (path, path, path)
@@ -558,7 +558,7 @@ function filterDataFrame(id) {
             }
             if (!matched)
                 tr[i].style.display = "none";
-        } 
+        }
     }
 }
 
@@ -809,7 +809,7 @@ function filterDataFrame(id) {
             }
             if (!matched)
                 tr[i].style.display = "none";
-        } 
+        }
     }
 }
 function sortDataFrame(id, n, dtype) {
@@ -975,7 +975,7 @@ def get_notebook_toc(path, exclude):
     return out
 
 def get_index_toc(path):
-    out = 'var {}Array = '.format(os.path.basename(path))
+    out = f'var {os.path.basename(path)}Array = '
     # Reference index
     fr = os.path.join(path, '_index.ipynb')
     if not os.path.isfile(fr):
@@ -990,7 +990,7 @@ def get_index_toc(path):
         data = json.load(f)
     for cell in data['cells']:
         for sentence in cell["source"]:
-            doc = re.search('^<p>.*\/(.+?).html', sentence)
+            doc = re.search('^.*\/(.+?).html', sentence)
             if doc:
                 res.append(doc.group(1))
     # Filter by reference index
@@ -1000,7 +1000,7 @@ def get_index_toc(path):
             data = json.load(f)
         for cell in data['cells']:
             for sentence in cell["source"]:
-                doc = re.search('^<p>.*\/(.+?).html', sentence)
+                doc = re.search('^.*\/(.+?).html', sentence)
                 if doc:
                     ref.append(doc.group(1))
         res = [x for x in res if x in ref]
