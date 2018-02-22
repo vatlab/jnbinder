@@ -1242,7 +1242,7 @@ def parse_html(url, html):
 def generate_tipue_content(html_files, base_url, docs_dir):
     # input is a list of html files and their url
     n = len(docs_dir)
-    text = [parse_html(url, html) for (url, html) in [(os.path.join(base_url, os.path.dirname(item)[len(docs_dir):]), os.path.basename(item)) for item in html_files]]
+    text = [parse_html(url, html) for (url, html) in [(os.path.join(base_url, item[len(docs_dir):]), item) for item in html_files]]
     # write the output to file.
     with open(os.path.join(docs_dir, 'site_libs/tipuesearch', 'tipuesearch_content.js'), 'w') as out:
         out.write('''\

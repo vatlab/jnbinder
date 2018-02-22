@@ -29,6 +29,7 @@ DEFAULT_CONF = {
            'reverse_autoindex': [],
            'remove_whiteline': False,
            'password_file': None
+           'site_url': None
            }
 status = 0
 try:
@@ -59,6 +60,8 @@ for item in conf['include_dir']:
        status = 1
        stof_if(stats, msg = f'Folder name ``{item}`` conflicts with website library paths. Please use a different name.')
 conf['remove_whiteline'] = 1 if conf['remove_whiteline'] else 0
+if conf['site_url'] is None:
+   conf['site_url'] = f"http://{path(conf['repo']):db}.github.io/{path(conf['repo']):b}"
 binders = [x for x in conf['include_dir'] if os.path.isdir(x)]
 # binders = [x for x in next(os.walk('./'))[1] if x not in conf['exclude_dir'] + ['docs'] and not x.startswith('.')]
 err_msg = '''
@@ -114,8 +117,8 @@ except:
 
 [check-link (Broken link checker)]
 depends: executable('linkchecker'), sos_variable('conf')
-bash: expand = "${ }"
-  linkchecker http://${path(conf['repo']):db}.github.io/${path(conf['repo']):b}
+bash: expand = True
+  linkchecker {conf['site_url']} 
 
 [update-tpl (Jupyter HTML template updater)]
 input: None
@@ -183,6 +186,14 @@ out = [get_toc(x, conf['exclude_file'] + [conf['homepage']]) for x in binders]
 with open(_output, 'w') as f:
   f.write('\n'.join(['\n'.join(x) for x in out]))
 
+[update-search (Search Javescript updater)]
+input: generated_files
+output: 'docs/site_libs/tipuesearch/tipuesearch_content.js'
+from jnbinder import generate_tipue_content
+generate_tipue_content(generated_files, conf['site_url'], 'docs/')
+with open('docs/search.html', 'w') as f:
+  f.write(open('docs/site_libs/tipuesearch/search.html').read())
+
 [remove-obsolete (Obsolete files remover)]
 output: 'docs/MANIFEST'
 from jnbinder import get_sha1_files
@@ -218,7 +229,7 @@ set ``add_commit_info: False`` in ``config.yml`` if you want to disable this fea
 '''
 stop_if(status)
 fail_if(os.path.isdir('.git') and 'ipynb' in get_output('git status --untracked-files=no --porcelain') and conf['add_commit_info'], msg = err_msg)
-sos_run('update-hp + update-nb + update-wf + update-toc + remove-obsolete', conf=conf, binders=binders, notebook_files=notebook_files, index_files=index_files, pipeline_files=pipeline_files, generated_files=generated_files, password=password)
+sos_run('update-hp + update-nb + update-wf + update-toc + update-search + remove-obsolete', conf=conf, binders=binders, notebook_files=notebook_files, index_files=index_files, pipeline_files=pipeline_files, generated_files=generated_files, password=password)
 sos_run('release-website')
 
 [default_2]

@@ -159,7 +159,7 @@ var create_toc_div = function (cfg, st) {
                 .attr("href", "../index.html")
                 .attr('style', "color:#c4939c")
                 .text("HomePage")
-            ).append($("<form/>").attr('class', 'search-form').attr('action', '../../search.html')
+            ).append($("<form/>").attr('class', 'search-form').attr('action', '../search.html')
                 .append($("<input/>").attr("type", "text").attr('name', 'q').attr('id', 'tipue_search_input').attr('style', 'width:95%;margin-top:9px').attr('placeholder', 'search').attr('pattern', '.{3,}')))
         ).append(
             $("<div/>").attr("id", "toc").addClass('toc')
