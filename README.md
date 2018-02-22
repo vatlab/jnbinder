@@ -2,10 +2,10 @@
 
 Copyright 2016 Gao Wang
 
-### Step 0: install SoS library
+### Step 0: install dependencies
 
 ```
-pip install --user sos sos-notebook
+pip install sos bs4 
 ```
 
 ### Step 1: install `jnbinder`
