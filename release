@@ -175,8 +175,8 @@ python: expand = "${ }", input = 'docs/jnbinder.py'
 [update-wf (Pipeline to HTML converter)]
 stop_if(len(pipeline_files) == 0)
 input: pipeline_files, group_by = 1, concurrent = True
-output: [f"docs/{x.replace('.sos', '.html')}" for x in pipeline_files], group_by = 1
-bash: expand = "${ }"
+output: [f"docs/{x.replace('.sos', '.pipeline.html')}" for x in pipeline_files], group_by = 1
+bash: expand = "${ }", stdout = None, stderr = None
   sos convert ${_input} ${_output} --style tango --lineno
 
 [update-toc (TOC Javascript updater)]
@@ -204,6 +204,8 @@ if os.path.isfile(_output):
   all_f2 = [(x, y) for x, y in zip(notebook_files,  [f"docs/{x.replace('.ipynb', '.html')}" for x in notebook_files])]
   sha1_files = [f"docs/{item.rsplit('_', 1)[-1][:-5]}/{path(item.rsplit('_', 1)[0]):b}.html" if item.rsplit('_', 1)[-1][:-5] != 'docs' else f"docs/{path(item.rsplit('_', 1)[0]):b}.html" for item in get_sha1_files(all_f1, all_f2, password)]
   get_output(f"rm -f {paths([x for x in old_files if not x in generated_files + sha1_files])}")
+else:
+  sha1_files = []
 with open(_output, 'w') as f:
   f.write('\n'.join(sorted(generated_files + sha1_files)))
 
