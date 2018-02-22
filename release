@@ -28,7 +28,7 @@ DEFAULT_CONF = {
            'long_autoindex': True,
            'reverse_autoindex': [],
            'remove_whiteline': False,
-           'password_file': None
+           'password_file': None,
            'site_url': None
            }
 status = 0
@@ -118,7 +118,7 @@ except:
 [check-link (Broken link checker)]
 depends: executable('linkchecker'), sos_variable('conf')
 bash: expand = True
-  linkchecker {conf['site_url']} 
+  linkchecker {conf['site_url']}
 
 [update-tpl (Jupyter HTML template updater)]
 input: None
