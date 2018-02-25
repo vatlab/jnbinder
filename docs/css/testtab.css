@@ -40,6 +40,10 @@ a:focus {
  color: #2f2f2f;
 }
 
+.fa-2x {
+  font-size: 1.2em;
+}
+
 .nav-tabs {
  font-family: "Source Sans Pro", sans-serif;
  font-size: 12pt;
@@ -50,6 +54,12 @@ a:focus {
  border-color: transparent;
  border-bottom-color: rgba(180,180,180,.30);
 }
+
+.list-inline>li {
+    display: inline-block;
+    padding-left: 0px;
+}
+
 .nav-tabs > li > a:hover {
  color: #2f2f2f;
  background-color: rgba(180,180,180,.14);
@@ -88,7 +98,7 @@ div.form-control,
  background-color: #ffffff;
  border: 2px solid #e7e7e7;
  margin-left: 2px;
- height: auto;
+ height: 1.4em;
  box-shadow: none;
  padding: 6px 12px;
  transition: border-color 0.15s ease-in-out 0s, box-shadow 0.15s ease-in-out 0s;
@@ -577,11 +587,11 @@ footer {
 .search-form .form-group {
   float: right !important;
 /*  transition: all 0.35s, border-radius 0s;*/
-  width: 34.30px;
-  height: 34.30px;
+  width: 1.4em;
+  height: 1.4em;
   background-color: #fff;
 /*  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.075) inset;*/
-  border-radius: 25px;
+  border-radius: 0.7em;
 /*  border: 1px solid #ccc;*/
 }
 .search-form .form-group input.form-control {
@@ -612,17 +622,17 @@ footer {
 }
 .search-form .form-group span.form-control-feedback {
   position: absolute;
-  top: 1px;
-  right: -2px;
+  top: 4px;
+  right: 2px;
   z-index: 2;
   display: block;
-  width: 36px;
-  height: 36px;
-  line-height: 34px;
+  width: 1.4em;
+  height: 1.4em;
+  line-height: 1.4em;
   text-align: center;
   color: #3596e0;
   left: initial;
-  font-size: 14px;
+  font-size: 12px;
 }
 form div.tipue_search_right #tipue_search_input
 {
