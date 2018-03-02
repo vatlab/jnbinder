@@ -3,6 +3,7 @@ import glob
 import re
 import json
 import subprocess
+import collections
 from hashlib import sha1
 from dateutil.parser import parse
 from bs4 import BeautifulSoup
@@ -23,6 +24,26 @@ def get_output(cmd, show_command=False, prompt='$ '):
         return '{}{}\n{}'.format(prompt, cmd, output)
     else:
         return output.strip()
+
+def short_repr(obj, noneAsNA=False, n1=25, n2=12):
+    '''Return a short representation of obj for clarity.'''
+    if obj is None:
+        return 'unspecified' if noneAsNA else 'None'
+    elif isinstance(obj, str) and len(obj) > (n1+n2):
+        return repr('{} ... {}').format(obj[:(n1-2)].replace('\n', '\\n'), obj[-n2:].replace('\n', '\\n').lstrip())
+    elif isinstance(obj, (str, int, float, bool)) or (isinstance(obj, collections.Sequence) \
+        and len(obj) <= 2) or len(str(obj)) < (n1+n2):
+        return repr(obj)
+    elif isinstance(obj, collections.Sequence): # should be a list or tuple
+        return f'[{short_repr(obj[0])}, ...] ({len(obj)} items)'
+    elif isinstance(obj, dict):
+        if obj:
+            first_key = list(obj.keys())[0]
+            return f'{{{first_key!r}:{short_repr(obj[first_key])!r}, ...}} ({len(obj)} items)'
+        else:
+            return '{}'
+    else:
+        return f'{repr(obj)[:n1]} ...'
 
 def compare_versions(v1, v2):
     # This will split both the versions by '.'
@@ -146,20 +167,19 @@ $( document ).ready(function(){
             $("#toc-level0 a").css("color","#126dce");
             $('a[href="#'+$("h1:first").attr("id")+'"]').hide()
             var docs=%sArray;
+            var docs_map=%sArrayMap;
             var pos=%sArray.indexOf(file);
             for (var a=pos;a>=0;a--){
-                  var name=docs[a]
-                  $('<li><a href="'+name+'.html"><font color="#073642"><b>'+name.replace(/_/g," ")+'</b></font></a></li>').insertBefore("#toc-level0 li:eq(0)");
+                  $('<li><a href="'+docs[a]+'.html"><font color="#073642"><b>'+docs_map[docs[a]].replace(/_/g," ")+'</b></font></a></li>').insertBefore("#toc-level0 li:eq(0)");
             }
             $('a[href="'+file+'.html'+'"]').css("color","#126dce");
             for (var a=pos+1;a<docs.length;a++){
-                  var name=docs[a]
-                  $(".toc #toc-level0").append('<li><a href="'+name+'.html"><font color="#073642"><b>'+name.replace(/_/g," ")+'</b></font></a></li>');
+                  $(".toc #toc-level0").append('<li><a href="'+docs[a]+'.html"><font color="#073642"><b>'+docs_map[docs[a]].replace(/_/g," ")+'</b></font></a></li>');
             }
             // $("#toc-header").hide(); // comment out because it prevents search bar from displaying
     });
 </script>
-''' % (path, path, path)
+''' % (path, path, path, path)
 
 def get_disqus(name):
     if name is None:
@@ -941,7 +961,8 @@ def make_template(conf, dirs, outdir):
             f.write(get_notebook_tpl(conf, dirs, item).strip())
 
 def get_notebook_toc(path, exclude):
-    out = "var %sDict = {" % os.path.basename(path)
+    map1 = dict()
+    map2 = dict()
     for fn in sorted(glob.glob(os.path.join(path, "*.ipynb"))):
         if os.path.basename(fn) in ['_index.ipynb', 'index.ipynb'] or fn in exclude:
             continue
@@ -956,14 +977,14 @@ def get_notebook_toc(path, exclude):
                     break
                 idx += 1
         except IndexError:
-            title = 'Untitled'
+            title = name
             continue
         # FIXME: this regex is to be continuously updated based on observed TOC generated
+        map2[name] = short_repr(title.replace('`','').strip('#').strip())[1:-1]
         title = re.sub('[^0-9a-zA-Z-:&!?@.,()+]+', '-', title).strip('-') + "-1"
-        out +='"' + title + '":"' + name + '",'
-    if not out.endswith('{'):
-        out = out[:-1]
-    out += "}"
+        map1[title] = name
+    out = f"var {os.path.basename(path)}Dict = {str(map1)}\n"
+    out += f"var {os.path.basename(path)}ArrayMap = {str(map2)}"
     return out
 
 def get_index_toc(path):
