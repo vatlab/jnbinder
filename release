@@ -100,11 +100,10 @@ bash:
   rm -rf jnbinder-master*
 
 [upgrade-jnbinder]
-# only update jnbinder, not the CSS files
 depends: 'jnbinder-master/README.md'
 bash:
-  rm -rf css fonts js site_libs
-  cp jnbinder-master/docs/{css,fonts,jnbinder.py,js,site_libs} docs
+  rm -rf docs/{css,fonts,jnbinder.py,js,site_libs}
+  cp -r jnbinder-master/docs/{css,fonts,jnbinder.py,js,site_libs} docs
   if [ -f release.sos ]; then
      cp jnbinder-master/release ./release.sos
   else
