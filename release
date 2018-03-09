@@ -39,7 +39,7 @@ except Exception as e:
   if 'jnbinder' in str(e):
      sos_run('setup-jnbinder')
      status = 1
-     stop_if(status, msg = 'Installation complete. Please rerun this script.')
+     fail_if(status, msg = 'Installation complete. Please rerun this script.')
   else:
      raise RuntimeError('{}. You can try `pip install` to install the missing module.'.format(e))
 if len(glob.glob('.sos/*')) and os.path.isdir(".git"):
@@ -47,7 +47,7 @@ if len(glob.glob('.sos/*')) and os.path.isdir(".git"):
 if compare_versions(SOS_VERSION, '0.9.12.9') < 0:
   sos_run("upgrade-sos")
   status = 1
-  stop_if(status, msg = 'Upgrade complete. Please rerun this script to load the upgrades.')
+  fail_if(status, msg = 'Upgrade complete. Please rerun this script to load the upgrades.')
 #
 err_msg = '''
 No valid path found in ``include_dir``
@@ -64,7 +64,7 @@ for k in ['include_dir', 'hide_navbar', 'exclude_file', 'reverse_autoindex']:
 for item in conf['include_dir']:
     if os.path.basename(item) in ['css', 'fonts', 'js', 'site_libs', 'docs']:
        status = 1
-       stop_if(stats, msg = f'Folder name ``{item}`` conflicts with website library paths. Please use a different name.')
+       fail_if(stats, msg = f'Folder name ``{item}`` conflicts with website library paths. Please use a different name.')
 conf['remove_whiteline'] = 1 if conf['remove_whiteline'] else 0
 if conf['site_url'] is None:
    conf['site_url'] = f"http://{path(conf['repo']):db}.github.io/{path(conf['repo']):b}"
@@ -82,7 +82,7 @@ if conf['password_file'] is not None and os.path.isfile(conf['password_file']):
    for key in password:
        if not os.path.isdir(key) and not os.path.isfile(key):
           status = 1
-          stop_if(status, msg = f"Cannot find ``{key}``. Please comment out or remove it from ``{conf['password_file']}``")
+          fail_if(status, msg = f"Cannot find ``{key}``. Please comment out or remove it from ``{conf['password_file']}``")
 else:
    password = None
 for item in rmd_files:
