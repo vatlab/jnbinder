@@ -146,7 +146,7 @@ if not os.path.isfile(conf['homepage']):
 depends: sos_step("update-tpl"), sos_step("update-index"), executable('jupyter')
 input: dynamic(index_files + [conf['homepage']]), group_by = 1, concurrent = True
 output: [f'docs/{x}.html' for x in binders if x not in conf['hide_navbar']] + ['docs/index.html'], group_by = 1
-bash: expand = "${ }", stderr = None
+bash: expand = "${ }", stderr = False
   jupyter nbconvert ${_input:e} --output ${_output:ae} --template docs/index.tpl
   # sed -i 's/<div class="prompt input_prompt">In&nbsp;\[[0-9]\]:<\/div>//g' ${_output:e}
   if [[ ${conf['remove_whiteline']} -gt 0 ]]; then
@@ -163,7 +163,7 @@ from jnbinder import get_commit_info
 nb_info = [get_commit_info(x, conf) for x in notebook_files]
 input: notebook_files, group_by = 1, paired_with = ['nb_info'], concurrent = True
 output: [f"docs/{x.replace('.ipynb', '.html')}" for x in notebook_files], group_by = 1
-bash: expand = "${ }", stderr = None
+bash: expand = "${ }", stderr = False
   jupyter nbconvert ${_input:e} --output ${_output:ae} --template docs/${_input:d}.tpl
   num=`grep -n -Fx '''${conf['footer']}''' ${_output:e} | tail -1 | sed 's/\([0-9]*\).*/\1/'`
   perl -i -lpe 'print "${_nb_info[0]}" if $. == '"$num"'+1' ${_output:e}
@@ -178,7 +178,7 @@ python: expand = "${ }", input = 'docs/jnbinder.py'
 stop_if(len(pipeline_files) == 0)
 input: pipeline_files, group_by = 1, concurrent = True
 output: [f"docs/{x.replace('.sos', '.pipeline.html')}" for x in pipeline_files], group_by = 1
-bash: expand = "${ }", stdout = None, stderr = None
+bash: expand = "${ }", stdout = False, stderr = False
   sos convert ${_input} ${_output} --style tango --lineno
 
 [update-toc (TOC Javascript updater)]
@@ -229,7 +229,7 @@ depends: Py_Module("ipyrmd")
 stop_if(len(rmd_files) == 0)
 input: rmd_files, group_by = 1, concurrent = True
 output: [x.replace('.Rmd', '.ipynb') for x in rmd_files], group_by = 1
-bash: expand = "${ }", stdout = None, stderr = None
+bash: expand = "${ }", stdout = False, stderr = False
   ipyrmd --to ipynb --from Rmd -y -o ${_output} ${_input}
 
 [default_3 (Build website)]
