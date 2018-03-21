@@ -420,7 +420,7 @@ $(document).ready(function () {
 </html>
 {%% endblock %%}
 	''' % (conf['__version__'], conf['name'], conf['theme'],
-           conf['auto_highlight'][1], conf['auto_highlight'][0],
+           'null', conf['auto_highlight'][0],
            get_font(conf['font']), conf['name'],
            get_nav([x for x in dirs if not x in conf['hide_navbar']], conf['homepage_label']),
            get_right_nav(conf['repo'], conf['source_label']), conf['footer'],
