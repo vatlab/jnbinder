@@ -73,7 +73,7 @@ conf['remove_whiteline'] = 1 if conf['remove_whiteline'] else 0
 if conf['site_url'] is None:
    conf['site_url'] = f"http://{path(conf['repo']):db}.github.io/{path(conf['repo']):b}"
 if conf['auto_highlight'] is None:
-   conf['auto_highlight'] = ('pack', 'null')
+   conf['auto_highlight'] = ('null', 'null')
 else:
    if os.path.isfile(f'docs/site_libs/highlightjs/highlight.{conf["auto_highlight"]}.js'):
       conf['auto_highlight'] = (conf['auto_highlight'], 'jnbinder')
