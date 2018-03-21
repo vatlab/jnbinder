@@ -29,6 +29,7 @@ DEFAULT_CONF = {
            'long_autoindex': True,
            'reverse_autoindex': [],
            'remove_whiteline': False,
+           'auto_highlight': False,
            'password_file': None,
            'site_url': None
            }

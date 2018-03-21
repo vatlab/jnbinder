@@ -226,7 +226,7 @@ def get_index_tpl(conf, dirs):
 
 <style type="text/css">code{white-space: pre;}</style>
 <link rel="stylesheet"
-      href="site_libs/highlightjs/jnbinder.min.css"
+      href="site_libs/highlightjs/%s.min.css"
       type="text/css" />
 
 <script src="site_libs/highlightjs/highlight.pack.js"></script>
@@ -419,7 +419,9 @@ $(document).ready(function () {
 </body>
 </html>
 {%% endblock %%}
-	''' % (conf['__version__'], conf['name'], conf['theme'], get_font(conf['font']), conf['name'],
+	''' % (conf['__version__'], conf['name'], conf['theme'],
+           'jnbinder' if conf['auto_highlight'] else 'null',
+           get_font(conf['font']), conf['name'],
            get_nav([x for x in dirs if not x in conf['hide_navbar']], conf['homepage_label']),
            get_right_nav(conf['repo'], conf['source_label']), conf['footer'],
            get_disqus(conf['disqus']))
@@ -762,7 +764,7 @@ def get_notebook_tpl(conf, dirs, path):
 <script src="../site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
 
 <link rel="stylesheet"
-      href="../site_libs/highlightjs/jnbinder.min.css"
+      href="../site_libs/highlightjs/%s.min.css"
       type="text/css" />
 
 <script src="../site_libs/highlightjs/highlight.pack.js"></script>
@@ -936,7 +938,8 @@ body {
 	''' % (conf['__version__'],
            '<link rel="stylesheet" type="text/css" href="../css/%s.css">' % conf['jt_theme']
            if conf['jt_theme'] is not None else '',
-           conf['theme'], get_sidebar(path) if conf['notebook_toc'] else '',
+           conf['theme'], 'jnbinder' if conf['auto_highlight'] else 'null',
+           get_sidebar(path) if conf['notebook_toc'] else '',
            get_sos_tpl('header' if conf['report_style'] is True else ''),
            conf['name'], get_font(conf['font']), conf['name'],
            get_nav([x for x in dirs if not x in conf['hide_navbar']], conf['homepage_label'], '../'),
