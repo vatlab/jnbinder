@@ -229,7 +229,7 @@ def get_index_tpl(conf, dirs):
       href="site_libs/highlightjs/%s.min.css"
       type="text/css" />
 
-<script src="site_libs/highlightjs/highlight.pack.js"></script>
+<script src="site_libs/highlightjs/highlight.%s.js"></script>
 <script>hljs.initHighlightingOnLoad();</script>
 <script type="text/javascript">
 if (window.hljs && document.readyState && document.readyState === "complete") {
@@ -420,7 +420,7 @@ $(document).ready(function () {
 </html>
 {%% endblock %%}
 	''' % (conf['__version__'], conf['name'], conf['theme'],
-           'jnbinder' if conf['auto_highlight'] else 'null',
+           conf['auto_highlight'][1], conf['auto_highlight'][0],
            get_font(conf['font']), conf['name'],
            get_nav([x for x in dirs if not x in conf['hide_navbar']], conf['homepage_label']),
            get_right_nav(conf['repo'], conf['source_label']), conf['footer'],
@@ -767,7 +767,7 @@ def get_notebook_tpl(conf, dirs, path):
       href="../site_libs/highlightjs/%s.min.css"
       type="text/css" />
 
-<script src="../site_libs/highlightjs/highlight.pack.js"></script>
+<script src="../site_libs/highlightjs/highlight.%s.js"></script>
 <script>hljs.initHighlightingOnLoad();</script>
 <script type="text/javascript">
 if (window.hljs && document.readyState && document.readyState === "complete") {
@@ -938,7 +938,7 @@ body {
 	''' % (conf['__version__'],
            '<link rel="stylesheet" type="text/css" href="../css/%s.css">' % conf['jt_theme']
            if conf['jt_theme'] is not None else '',
-           conf['theme'], 'jnbinder' if conf['auto_highlight'] else 'null',
+           conf['theme'], conf['auto_highlight'][1], conf['auto_highlight'][0],
            get_sidebar(path) if conf['notebook_toc'] else '',
            get_sos_tpl('header' if conf['report_style'] is True else ''),
            conf['name'], get_font(conf['font']), conf['name'],

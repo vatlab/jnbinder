@@ -29,7 +29,7 @@ DEFAULT_CONF = {
            'long_autoindex': True,
            'reverse_autoindex': [],
            'remove_whiteline': False,
-           'auto_highlight': False,
+           'auto_highlight': None,
            'password_file': None,
            'site_url': None
            }
@@ -72,6 +72,13 @@ for item in conf['include_dir']:
 conf['remove_whiteline'] = 1 if conf['remove_whiteline'] else 0
 if conf['site_url'] is None:
    conf['site_url'] = f"http://{path(conf['repo']):db}.github.io/{path(conf['repo']):b}"
+if conf['auto_highlight'] is None:
+   conf['auto_highlight'] = ('pack', 'null')
+else:
+   if os.path.isfile(f'docs/site_libs/highlightjs/highlight.{conf["auto_highlight"]}.js'):
+      conf['auto_highlight'] = (conf['auto_highlight'], 'jnbinder')
+   else:
+      conf['auto_highlight'] = (pack, 'jnbinder')
 binders = [x for x in conf['include_dir'] if os.path.isdir(x)]
 # binders = [x for x in next(os.walk('./'))[1] if x not in conf['exclude_dir'] + ['docs'] and not x.startswith('.')]
 fail_if(len(binders) == 0, msg = err_msg)

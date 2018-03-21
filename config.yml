@@ -18,6 +18,6 @@
 # reverse_autoindex: [] # Directories for which auto-index be reversed. This is useful when a folder has notebook named like `20160502_XX` because it will show the newer notebook on the top.
 # report_style: False # Use SoS report style that hides codes by default for SoS notebooks
 # remove_whiteline: False # When set to `True` the empty lines in the output HTML will be purged. This will make the code block read more compact.
-# password_file: None # Load a list of folders / pages to be password protected, and their passwords. See example https://github.com/stephenslab/ipynb-website/blob/master/.passwd.
-# site_url: None # Default uses github.io URL convention
-# auto_highlight: False
+# password_file: NULL # Load a list of folders / pages to be password protected, and their passwords. See example https://github.com/stephenslab/ipynb-website/blob/master/.passwd.
+# site_url: NULL # Default uses github.io URL convention
+# auto_highlight: NULL
