@@ -48,7 +48,7 @@ except Exception as e:
      raise RuntimeError('{}. You can try `pip install` to install the missing module.'.format(e))
 if len(glob.glob('.sos/*')) and os.path.isdir(".git"):
    update_gitignore()
-if compare_versions(SOS_VERSION, '0.9.12.10') < 0:
+if compare_versions(SOS_VERSION, '0.9.13.2') < 0:
   sos_run("upgrade-sos")
   status = 1
   fail_if(status, msg = 'Cannot generate documents due to obsolete SoS software. Though we have attempted to upgrade SoS (see above) you need to rerun this script to load the updates.')
@@ -73,7 +73,7 @@ conf['remove_whiteline'] = 1 if conf['remove_whiteline'] else 0
 if conf['site_url'] is None:
    conf['site_url'] = f"http://{path(conf['repo']):db}.github.io/{path(conf['repo']):b}"
 if conf['auto_highlight'] is None:
-   conf['auto_highlight'] = ('null', 'null')
+   conf['auto_highlight'] = ('pack', 'null')
 else:
    if os.path.isfile(f'docs/site_libs/highlightjs/highlight.{conf["auto_highlight"]}.js'):
       conf['auto_highlight'] = (conf['auto_highlight'], 'jnbinder')
