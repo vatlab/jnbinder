@@ -78,7 +78,7 @@ else:
    if os.path.isfile(f'docs/site_libs/highlightjs/highlight.{conf["auto_highlight"]}.js'):
       conf['auto_highlight'] = (conf['auto_highlight'], 'jnbinder')
    else:
-      conf['auto_highlight'] = (pack, 'jnbinder')
+      conf['auto_highlight'] = ('pack', 'jnbinder')
 binders = [x for x in conf['include_dir'] if os.path.isdir(x)]
 # binders = [x for x in next(os.walk('./'))[1] if x not in conf['exclude_dir'] + ['docs'] and not x.startswith('.')]
 fail_if(len(binders) == 0, msg = err_msg)
