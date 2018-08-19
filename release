@@ -114,6 +114,7 @@ bash:
 [upgrade-jnbinder]
 depends: 'jnbinder-master/README.md'
 bash:
+  mkdir -p docs
   rm -rf docs/{css,fonts,jnbinder.py,js,site_libs}
   cp -r jnbinder-master/docs/{css,fonts,jnbinder.py,js,site_libs} docs
   if [ -f release.sos ]; then
