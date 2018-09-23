@@ -180,7 +180,7 @@ nb_info = [get_commit_info(x, conf) for x in notebook_files]
 input: notebook_files, group_by = 1, paired_with = ['nb_info'], concurrent = True
 output: [f"docs/{path(x):d}/index.html" if f'{path(x):db}' == f'{path(x):bn}' else f"docs/{x.replace('.ipynb', '.html')}" for x in notebook_files], group_by = 1
 bash: expand = "${ }", stderr = False
-  jupyter nbconvert ${_input:e} --output ${_output:ae} --template docs/${_input:d}.tpl
+  jupyter nbconvert ${_input:e} --output ${_output:ae} --template docs/${_input:d}.tpl ${"--execute" if (str(_input)[:-5] + "Rmd") in rmd_files else ""}
   num=`grep -n -Fx '''${conf['footer']}''' ${_output:e} | tail -1 | sed 's/\([0-9]*\).*/\1/'`
   perl -i -lpe 'print "${_nb_info[0]}" if $. == '"$num"'+1' ${_output:e}
   if [[ ${conf['remove_whiteline']} -gt 0 ]]; then
@@ -251,13 +251,14 @@ bash: expand = "${ }", stdout = False, stderr = False
 [default_3 (Build website)]
 # build ipynb website ...
 err_msg = '''
-To properly add notebook version info, all changes made to notebooks must be committed.
+To properly add in version info, all changes made to source notebooks must be committed.
 Please use ``git commit`` to commit changes and run this command again. Or you may
 set ``add_commit_info: False`` in ``config.yml`` if you want to disable this feature.
 '''
 stop_if(status)
-fail_if(os.path.isdir('.git') and 'ipynb' in get_output('git status --untracked-files=no --porcelain') and conf['add_commit_info'], msg = err_msg)
-sos_run('update-hp + update-nb + update-wf + update-toc + update-search + remove-obsolete', conf=conf, binders=binders, notebook_files=notebook_files, index_files=index_files, pipeline_files=pipeline_files, generated_files=generated_files, password=password)
+changed_list = get_output('git status --untracked-files=no --porcelain')
+fail_if(os.path.isdir('.git') and ('ipynb' in changed_list or 'Rmd' in changed_list) and conf['add_commit_info'], msg = err_msg)
+sos_run('update-hp + update-nb + update-wf + update-toc + update-search + remove-obsolete', conf=conf, binders=binders, notebook_files=notebook_files, rmd_files=rmd_files, index_files=index_files, pipeline_files=pipeline_files, generated_files=generated_files, password=password)
 sos_run('release-website', conf=conf)
 
 [default_4]
