@@ -262,4 +262,4 @@ sos_run('release-website', conf=conf)
 stop_if(status)
 bash: expand = True
   rm -f {paths([binder + '/_index.ipynb' for binder in binders])}
-  rm -f {paths([x.replace('.Rmd', '.ipynb') for x in rmd_files])}
+  rm -f {paths([x.replace('.Rmd', '.ipynb') for x in rmd_files])} {path(conf["homepage"]).with_suffix(".ipynb") if conf["homepage"].endswith(".Rmd") else ""}
