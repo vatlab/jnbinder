@@ -238,7 +238,7 @@ depends: 'docs/MANIFEST'
 get_output(f"rm -f {paths([x.strip() for x in open('docs/MANIFEST').readlines()])}")
 
 [ipyrmd (Rmarkdown to ipynb): provides = '{data}.ipynb']
-depends: Py_Module("ipyrmd")
+depends: Py_Module("ipyrmd"), R_library('IRkernel'), R_library('IRdisplay')
 input: f'{data}.Rmd'
 output: f'{data}.ipynb'
 bash: expand = "${ }", stdout = False, stderr = False
