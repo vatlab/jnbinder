@@ -7,8 +7,8 @@ parameter: pip = 'pip'
 [default_1 (Configure website): shared = ['conf', 'binders', 'notebook_files', 'rmd_files', 'index_files', 'pipeline_files', 'generated_files', 'password', 'status']]
 depends: Py_Module('bs4'), Py_Module('date_parser')
 DEFAULT_CONF = {
-           '__version__': '0.9.5',
-           '__sos_version__': '0.9.16.8',
+           '__version__': '0.9.6',
+           '__sos_version__': '0.9.17.1',
            '__about_commit__': 'https://stephenslab.github.io/ipynb-website/notes.html#Note-about-commit-ids',
            'name': 'A Pet Project',
            'repo': 'http://github.com/vatlab/jnbinder',
@@ -156,7 +156,7 @@ if not os.path.isfile(conf['homepage']):
     f.write(make_empty_nb(conf['name']))
 
 [update-hp (Index HTML updater)]
-depends: sos_step("update-tpl"), sos_step("update-index"), executable('jupyter'), Py_Module('jupyter_contrib_nbextensions'), path(conf['homepage']).with_suffix('.ipynb')
+depends: sos_step("update-tpl"), executable('jupyter'), Py_Module('jupyter_contrib_nbextensions'), path(conf['homepage']).with_suffix('.ipynb')
 input: dynamic(index_files + [path(conf['homepage']).with_suffix('.ipynb')]), group_by = 1, concurrent = True
 output: [f'docs/{x}.html' for x in binders if x not in conf['hide_navbar']] + ['docs/index.html'], group_by = 1
 bash: expand = "${ }", stderr = False
@@ -254,6 +254,7 @@ set ``add_commit_info: False`` in ``config.yml`` if you want to disable this fea
 stop_if(status)
 changed_list = get_output('git status --untracked-files=no --porcelain')
 fail_if(os.path.isdir('.git') and ('ipynb' in changed_list or 'Rmd' in changed_list) and conf['add_commit_info'], msg = err_msg)
+sos_run('update-index', conf=conf, binders=binders, notebook_files=notebook_files)
 sos_run('update-hp + update-nb + update-wf + update-toc + update-search + remove-obsolete', conf=conf, binders=binders, notebook_files=notebook_files, rmd_files=rmd_files, index_files=index_files, pipeline_files=pipeline_files, generated_files=generated_files, password=password)
 sos_run('release-website', conf=conf)
 
