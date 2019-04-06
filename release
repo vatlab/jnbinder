@@ -259,7 +259,11 @@ except:
 [clean]
 # remove generated files
 depends: 'docs/MANIFEST'
-get_output(f"rm -f {paths([x.strip() for x in open('docs/MANIFEST').readlines()])}")
+for item in [x.strip() for x in open('docs/MANIFEST').readlines()]:
+  try:
+    os.remove(item)
+  except OSError:
+    pass
 
 [ipyrmd (Rmarkdown to ipynb): provides = '{data}.ipynb']
 depends: Py_Module("ipyrmd", autoinstall=True), R_library('IRkernel'), R_library('IRdisplay')
