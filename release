@@ -285,6 +285,9 @@ sos_run('release-website', conf=conf)
 [default_4]
 # remove intermediate files
 stop_if(status)
-run: expand = True
-  rm -f {paths([binder + '/_index.ipynb' for binder in binders])}
-  rm -f {paths([x.replace('.Rmd', '.ipynb') for x in rmd_files])} {path(conf["homepage"]).with_suffix(".ipynb") if conf["homepage"].endswith(".Rmd") else ""}
+hp = [path(conf["homepage"]).with_suffix(".ipynb")] if conf["homepage"].endswith(".Rmd") else []
+for item in [binder + '/_index.ipynb' for binder in binders] + [x.replace('.Rmd', '.ipynb') for x in rmd_files] + hp:
+  try:
+    os.remove(item)
+  except OSError:
+    pass
