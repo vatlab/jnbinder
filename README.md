@@ -1,4 +1,4 @@
-## A simple pipeline to generate website from Jupyter notebooks
+## A simple SoS workflow to generate website from Jupyter notebooks
 
 Copyright 2016 Gao Wang
 
