@@ -50,4 +50,5 @@ The software is intented for my personal use but I'm happy to help if you reques
 
 Here are more examples of generated research websites:
 
-* https://gaow.github.io/mvarbvs
+* https://gaow.github.io/mnm-gtex-v8
+* https://stephenslab.github.io/susie-paper
