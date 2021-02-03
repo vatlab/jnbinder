@@ -955,11 +955,11 @@ def update_gitignore():
     flag = True
     if os.path.isfile('.gitignore'):
       lines = [x.strip() for x in open('.gitignore').readlines()]
-      if '**/.sos' in lines:
+      if '**/.ipynb_checkpoints' in lines:
         flag = False
     if flag:
       with open('.gitignore', 'a') as f:
-        f.write('\n**/.sos\n**/.ipynb_checkpoints\n**/__pycache__')
+        f.write('\n**/.ipynb_checkpoints\n**/__pycache__')
 
 def make_template(conf, dirs, outdir):
     with open('{}/index.tpl'.format(outdir), 'w') as f:
