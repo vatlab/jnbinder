@@ -1054,7 +1054,7 @@ def make_index_nb(path, exclude, long_description = False, reverse_alphabet = Fa
   },'''
     date_section = None
     add_date_section = False
-    files = glob.glob(os.path.join(path, "**/*.ipynb")
+    files = glob.glob(os.path.join(path, "**/*.ipynb"))
     files.sort(key=lambda x: os.path.basename(x),  reverse = reverse_alphabet)
     for fn in files:
         if os.path.basename(fn) in ['_index.ipynb', 'index.ipynb'] or fn in exclude:
