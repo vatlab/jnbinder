@@ -169,18 +169,21 @@ if not os.path.isfile(conf['homepage']):
 
 [update-hp (Index HTML updater)]
 parameter: index_files = list
-parameter: conf = dict
+parameter: homepage = str
+parameter: skip_homepage = bool
+parameter: hide_navbar = bool
+parameter: remove_whiteline = int
 parameter: password = str
-depends: sos_step("update-tpl"), executable('jupyter'), executable('sed'), executable('perl'), Py_Module('jupyter_contrib_nbextensions', autoinstall=True), path(conf['homepage']).with_suffix('.ipynb')
+depends: executable('jupyter'), executable('sed'), executable('perl'), Py_Module('jupyter_contrib_nbextensions', autoinstall=True), path(homepage).with_suffix('.ipynb')
 from jnbinder import get_sha1_files
-input_files = index_files + ([path(conf['homepage']).with_suffix('.ipynb')] if not conf['skip_homepage'] else [])
-output_files = [f'docs/{x}.html' for x in binders if x not in conf['hide_navbar']] + (['docs/index.html'] if not conf['skip_homepage'] else [])
+input_files = index_files + ([path(homepage).with_suffix('.ipynb')] if not skip_homepage else [])
+output_files = [f'docs/{x}.html' for x in binders if x not in hide_navbar] + (['docs/index.html'] if not skip_homepage else [])
 input: dynamic(input_files), group_by = 1
 output: output_files, group_by = 1
 bash: expand = "${ }", stderr = False
   jupyter nbconvert ${_input:e} --output ${_output:ae} --template docs/index.tpl
   # sed -i 's/<div class="prompt input_prompt">In&nbsp;\[[0-9]\]:<\/div>//g' ${_output:e}
-  if [[ ${conf['remove_whiteline']} -gt 0 ]]; then
+  if [[ ${remove_whiteline} -gt 0 ]]; then
      perl -i -ne 'print if /\S/' ${_output:e}
   fi
 
@@ -188,19 +191,20 @@ get_sha1_files([(_input, _output)], [], password, write = True)
 
 [update-nb (Notebook to HTML converter)]
 parameter: notebook_files = list
-parameter: conf = dict
+parameter: nb_info= list
+parameter: remove_whiteline = int
+parameter: footer = str
 parameter: password = str
 stop_if(len(notebook_files) == 0)
-depends: sos_step("update-tpl"), executable('jupyter'), executable('sed'), executable('perl'), Py_Module('jupyter_contrib_nbextensions', autoinstall=True), paths(notebook_files)
-from jnbinder import get_commit_info, get_base_link, get_sha1_files
-nb_info = [get_commit_info(x[:-5] + 'Rmd' if path(x).with_suffix(".Rmd").exists() else x, conf) for x in notebook_files]
+depends: executable('jupyter'), executable('sed'), executable('perl'), Py_Module('jupyter_contrib_nbextensions', autoinstall=True), paths(notebook_files)
+from jnbinder import get_base_link, get_sha1_files
 input: notebook_files, group_by = 1, paired_with = ['nb_info']
 output: [f"docs/{get_base_link(x)}" for x in notebook_files], group_by = 1
 bash: expand = "${ }", stderr = False
   jupyter nbconvert ${_input:e} --output ${_output:ae} --template docs/${str(_input).split(os.path.sep)[0]}.tpl
-  num=`grep -n -Fx '''${conf['footer']}''' ${_output:e} | tail -1 | sed 's/\([0-9]*\).*/\1/'`
+  num=`grep -n -Fx '''${footer}''' ${_output:e} | tail -1 | sed 's/\([0-9]*\).*/\1/'`
   perl -i -lpe 'print "${_nb_info[0]}" if $. == '"$num"'+1' ${_output:e}
-  if [[ ${conf['remove_whiteline']} -gt 0 ]]; then
+  if [[ ${remove_whiteline} -gt 0 ]]; then
      perl -i -ne 'print if /\S/' ${_output:e}
   fi
 
@@ -217,23 +221,25 @@ run: expand = "${ }", stdout = False, stderr = False
 
 [update-toc (TOC Javascript updater)]
 parameter: notebook_files = list
+parameter: pipeline_files = list
 parameter: index_files = list
 parameter: binders = list
-parameter: conf = dict
-input: dynamic(notebook_files + index_files)
+parameter: exclude_file = list
+parameter: homepage = str
+input: dynamic(notebook_files + pipeline_files + index_files)
 output: 'docs/js/docs.js'
 from jnbinder import get_toc
-out = [get_toc(x, conf['exclude_file'] + [conf['homepage']]) for x in binders]
+out = [get_toc(x, exclude_file + [homepage]) for x in binders]
 with open(_output, 'w') as f:
   f.write('\n'.join(['\n'.join(x) for x in out]))
 
 [update-search (Search Javescript updater)]
 parameter: generated_files = list
-parameter: conf = dict()
+parameter: url = str
 input: generated_files
 output: 'docs/site_libs/tipuesearch/tipuesearch_content.js'
 from jnbinder import generate_tipue_content
-generate_tipue_content(generated_files, conf['site_url'], 'docs/')
+generate_tipue_content(generated_files, url, 'docs/')
 with open('docs/search.html', 'w') as f:
   f.write(open('docs/site_libs/tipuesearch/search.html').read())
 
@@ -292,8 +298,15 @@ run: expand = "${ }", stdout = False, stderr = False
 
 [default_3 (Build website)]
 input: group_by = 'all'
+from jnbinder import get_commit_info
 sos_run('update-index', conf=conf, binders=binders, notebook_files=notebook_files)
-sos_run('update-hp + update-nb + update-wf + update-toc + update-search + remove-obsolete', conf=conf, binders=binders, notebook_files=notebook_files, index_files=index_files, pipeline_files=pipeline_files, generated_files=generated_files, password=password)
+sos_run('update-tpl', conf=conf, binders=binders)
+sos_run('update-hp', binders=binders, homepage=conf['homepage'], skip_homepage=conf['skip_homepage'], remove_whiteline=conf['remove_whiteline'], hide_navbar=conf['hide_navbar'], index_files=index_files, password=password)
+sos_run('update-nb', nb_info=[get_commit_info(x[:-5] + 'Rmd' if path(x).with_suffix(".Rmd").exists() else x, conf) for x in notebook_files], remove_whiteline=conf['remove_whiteline'], footer=conf['footer'], notebook_files=notebook_files, password=password)
+sos_run('update-wf', pipeline_files=pipeline_files)
+sos_run('update-toc', binders=binders, notebook_files=notebook_files, index_files=index_files, pipeline_files=pipeline_files, homepage=conf['homepage'], exclude_file=conf['exclude_file'])
+sos_run('update-search', url=conf['site_url'], generated_files=generated_files)
+sos_run('remove-obsolete', conf=conf, generated_files=generated_files, password=password)
 sos_run('release-website', conf=conf)
 
 [default_4 (Clean up)]
