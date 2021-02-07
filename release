@@ -128,11 +128,7 @@ bash:
   mkdir -p docs
   rm -rf docs/{css,fonts,jnbinder.py,js,site_libs}
   cp -r jnbinder-master/docs/{css,fonts,jnbinder.py,js,site_libs} docs
-  if [ -f release.sos ]; then
-     cp jnbinder-master/release ./release.sos
-  else
-     cp jnbinder-master/release ./
-  fi
+  cp jnbinder-master/jnbinder_docker.sh ./
   rm -rf jnbinder-master*
 
 [upgrade-sos (SoS upgrader)]
@@ -176,6 +172,7 @@ parameter: index_files = list
 parameter: conf = dict
 parameter: password = str
 depends: sos_step("update-tpl"), executable('jupyter'), executable('sed'), executable('perl'), Py_Module('jupyter_contrib_nbextensions', autoinstall=True), path(conf['homepage']).with_suffix('.ipynb')
+from jnbinder import get_sha1_files
 input_files = index_files + ([path(conf['homepage']).with_suffix('.ipynb')] if not conf['skip_homepage'] else [])
 output_files = [f'docs/{x}.html' for x in binders if x not in conf['hide_navbar']] + (['docs/index.html'] if not conf['skip_homepage'] else [])
 input: dynamic(input_files), group_by = 1
@@ -187,8 +184,7 @@ bash: expand = "${ }", stderr = False
      perl -i -ne 'print if /\S/' ${_output:e}
   fi
 
-python: expand = "${ }", input = 'docs/jnbinder.py'
-  get_sha1_files([(${_input:r}, ${_output:r})], [], ${password}, write = True)
+get_sha1_files([(_input, _output)], [], password, write = True)
 
 [update-nb (Notebook to HTML converter)]
 parameter: notebook_files = list
@@ -246,12 +242,14 @@ parameter: conf = dict()
 parameter: generated_files = list
 parameter: password = str
 output: 'docs/MANIFEST'
-from jnbinder import get_sha1_files
+from jnbinder import get_sha1_files, get_base_link
 if os.path.isfile(_output):
   old_files = [x.strip() for x in open(_output).readlines()]
   all_f1 = [(x, y) for x, y in zip(index_files + [conf['homepage']], [f'docs/{x}.html' for x in binders if x not in conf['hide_navbar']] + (['docs/index.html'] if not conf['skip_homepage'] else []))]
-  all_f2 = [(x, y) for x, y in zip(notebook_files,  [f"docs/{x.replace('.ipynb', '.html')}" for x in notebook_files])]
-  sha1_files = [f"docs/{item.rsplit('_', 1)[-1][:-5]}/{path(item.rsplit('_', 1)[0]):b}.html" if item.rsplit('_', 1)[-1][:-5] != 'docs' else f"docs/{path(item.rsplit('_', 1)[0]):b}.html" for item in get_sha1_files(all_f1, all_f2, password)]
+  all_f2 = [(x, y) for x, y in zip(notebook_files,  [f'docs/{get_base_link(x)}' for x in notebook_files])]
+  all_f3 = [(x, y) for x, y in zip(pipeline_files, [f'docs/{get_base_link(x, "pipeline.html")}' for x in notebook_files])]
+
+  sha1_files = [f"docs/{item.rsplit('_', 1)[-1][:-5]}/{path(item.rsplit('_', 1)[0]):b}.html" if item.rsplit('_', 1)[-1][:-5] != 'docs' else f"docs/{path(item.rsplit('_', 1)[0]):b}.html" for item in get_sha1_files(all_f1, all_f2 + all_f3, password)]
   for item in [x for x in old_files if not x in generated_files + sha1_files]:
     if item == 'docs/index.html':
       continue
