@@ -2,6 +2,45 @@
 
 Copyright 2016 Gao Wang
 
+
+## Run from a docker image
+
+1. Install [`docker`](https://docs.docker.com/get-docker/). Double-check
+   after installation that `docker` is properly installed, by typing:
+
+   ```bash
+   docker run hello-world
+   # Hello from Docker.
+   # This message shows that your installation appears to be working correctly.
+   ```
+
+2. Pull the docker image that contains dependency software to generate the website:
+
+   ```bash
+   docker pull gaow/jnbinder
+   ```
+3. Load the docker command to generate web-pages:
+
+     ```bash
+     source jnbinder_docker.sh
+     ```
+   After this, command prompt `jnbinder` should be available from your terminal.
+   To verify, the following command should display the command interface:
+
+    ```bash
+    jnbinder -h
+    ```
+
+4. Inside your new project directory, clean up and then re-generate
+   all the webpages using the SoS release script:
+
+   ```bash
+   jnbinder clean
+   jnbinder -s force
+   ```
+
+## Run source code
+
 ### Step 0: install dependencies
 
 ```
@@ -43,5 +82,5 @@ The software is intented for my personal use but I'm happy to help if you reques
 Here are more examples of generated research websites:
 
 * https://github.com/stephenslab/ipynb-website
-* https://gaow.github.io/mnm-gtex-v8
+* https://stephenslab.github.io/gtex-eqtls
 * https://stephenslab.github.io/susie-paper
