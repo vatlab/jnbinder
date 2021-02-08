@@ -2,9 +2,10 @@
 #fileformat=SOS1.0
 import os, sys, glob
 
-sys.path.append('docs')
+parameter: root = 'docs'
 parameter: pip = 'pip'
 parameter: overwrite_rmd = False
+sys.path.append(root)
 
 [default_1 (Configure website): shared = ['conf', 'binders', 'notebook_files', 'rmd_files', 'index_files', 'pipeline_files', 'generated_files', 'password', 'status']]
 depends: Py_Module('bs4', autoinstall=True), Py_Module('date_parser', autoinstall=True)
@@ -66,11 +67,11 @@ with open('config.yml', 'r') as f:
     conf = yaml.safe_load(f)
 fail_if(conf is None, msg = err_msg)
 conf.update({k:v for k,v in DEFAULT_CONF.items() if k not in conf})
-conf['jt_theme'] = conf['theme'] if os.path.isfile(f"docs/css/{conf['theme']}.css") else None
+conf['jt_theme'] = conf['theme'] if os.path.isfile(f"{root}/css/{conf['theme']}.css") else None
 for k in ['include_dir', 'hide_navbar', 'exclude_file', 'reverse_autoindex']:
     conf[k] = [os.path.normpath(x) for x in conf[k]]
 for item in conf['include_dir']:
-    if os.path.basename(item) in ['css', 'fonts', 'js', 'site_libs', 'docs']:
+    if os.path.basename(item) in ['css', 'fonts', 'js', 'site_libs', root]:
        status = 1
        fail_if(stats, msg = f'Folder name ``{item}`` conflicts with website library paths. Please use a different name.')
 conf['remove_whiteline'] = 1 if conf['remove_whiteline'] else 0
@@ -79,18 +80,18 @@ if conf['site_url'] is None:
 if conf['auto_highlight'] is None:
    conf['auto_highlight'] = ('pack', 'null')
 else:
-   if os.path.isfile(f'docs/site_libs/highlightjs/highlight.{conf["auto_highlight"]}.js'):
+   if os.path.isfile(f'{root}/site_libs/highlightjs/highlight.{conf["auto_highlight"]}.js'):
       conf['auto_highlight'] = (conf['auto_highlight'], 'jnbinder')
    else:
       conf['auto_highlight'] = ('pack', 'jnbinder')
 binders = [x for x in conf['include_dir'] if os.path.isdir(x)]
-# binders = [x for x in next(os.walk('./'))[1] if x not in conf['exclude_dir'] + ['docs'] and not x.startswith('.')]
+# binders = [x for x in next(os.walk('./'))[1] if x not in conf['exclude_dir'] + [root] and not x.startswith('.')]
 fail_if(len(binders) == 0, msg = err_msg)
 rmd_files = sum([[y for y in glob.glob(f"{x}/**/*.Rmd", recursive=True) if y not in conf['exclude_file']] for x in binders], [])
 notebook_files = list(set(sum([[y for y in glob.glob(f"{x}/**/*.ipynb", recursive=True) if y not in [f"{x}/index.ipynb", f"{x}/_index.ipynb", conf['homepage']] + conf['exclude_file']] for x in binders], []) + [x.replace('.Rmd', '.ipynb') for x in rmd_files]))
 index_files = [f'{x}/index.ipynb' if os.path.isfile(f'{x}/index.ipynb') else f'{x}/_index.ipynb' for x in binders if x not in conf['hide_navbar']]
 pipeline_files = sum([[y for y in glob.glob(f"{x}/**/*.sos", recursive=True) if y not in conf['exclude_file']] for x in binders], [])
-generated_files = [f'docs/{x}.html' for x in binders if x not in conf['hide_navbar']] + (['docs/index.html'] if not conf['skip_homepage'] else []) + [f'docs/{get_base_link(x)}' for x in notebook_files] + [f'docs/{get_base_link(x, "pipeline.html")}' for x in pipeline_files] + ['docs/js/docs.js', 'docs/index.tpl'] + [f"docs/{x}.tpl" for x in binders]
+generated_files = [f'{root}/{x}.html' for x in binders if x not in conf['hide_navbar']] + ([f'{root}/index.html'] if not conf['skip_homepage'] else []) + [f'{root}/{get_base_link(x)}' for x in notebook_files] + [f'{root}/{get_base_link(x, "pipeline.html")}' for x in pipeline_files] + [f'{root}/js/docs.js', f'{root}/index.tpl'] + [f"{root}/{x}.tpl" for x in binders]
 if conf['password_file'] is not None and os.path.isfile(conf['password_file']):
    with open(conf['password_file']) as f:
         password = {os.path.normpath(k): v for k, v in yaml.safe_load(f).items()}
@@ -117,17 +118,18 @@ download: decompress = True, dest_file = 'jnbinder-master.zip'
 
 [setup-jnbinder]
 depends: 'jnbinder-master/README.md'
-run:
-  yes | cp -rf jnbinder-master/docs ./
+run: expand = True
+  mkdir -p ${root}
+  yes | cp -rf jnbinder-master/docs/* {root}/
   cp jnbinder-master/config.yml config.default.yml
   rm -rf jnbinder-master*
 
 [upgrade-jnbinder]
 depends: 'jnbinder-master/README.md'
-bash:
-  mkdir -p docs
-  rm -rf docs/{css,fonts,jnbinder.py,js,site_libs}
-  cp -r jnbinder-master/docs/{css,fonts,jnbinder.py,js,site_libs} docs
+bash: expand = "${ }"
+  mkdir -p ${root}
+  rm -rf ${root}/{css,fonts,jnbinder.py,js,site_libs}
+  cp -r jnbinder-master/${root}/{css,fonts,jnbinder.py,js,site_libs} ${root}
   cp jnbinder-master/jnbinder_docker.sh ./
   rm -rf jnbinder-master*
 
@@ -147,9 +149,9 @@ run: expand = True
 parameter: binders = list
 parameter: conf = dict
 input: None
-output: [f"docs/{x}.tpl" for x in binders] + ['docs/index.tpl']
+output: [f"{root}/{x}.tpl" for x in binders] + [f'{root}/index.tpl']
 from jnbinder import make_template
-make_template(conf, binders, 'docs')
+make_template(conf, binders, root)
 
 [update-index (Index notebook generator)]
 parameter: binders = list
@@ -177,17 +179,17 @@ parameter: password = str
 depends: executable('jupyter'), executable('sed'), executable('perl'), Py_Module('jupyter_contrib_nbextensions', autoinstall=True), path(homepage).with_suffix('.ipynb')
 from jnbinder import get_sha1_files
 input_files = index_files + ([path(homepage).with_suffix('.ipynb')] if not skip_homepage else [])
-output_files = [f'docs/{x}.html' for x in binders if x not in hide_navbar] + (['docs/index.html'] if not skip_homepage else [])
+output_files = [f'{root}/{x}.html' for x in binders if x not in hide_navbar] + ([f'{root}/index.html'] if not skip_homepage else [])
 input: dynamic(input_files), group_by = 1
 output: output_files, group_by = 1
 bash: expand = "${ }", stderr = False
-  jupyter nbconvert ${_input:e} --output ${_output:ae} --template docs/index.tpl
+  jupyter nbconvert ${_input:e} --output ${_output:ae} --template ${root}/index.tpl
   # sed -i 's/<div class="prompt input_prompt">In&nbsp;\[[0-9]\]:<\/div>//g' ${_output:e}
   if [[ ${remove_whiteline} -gt 0 ]]; then
      perl -i -ne 'print if /\S/' ${_output:e}
   fi
 
-get_sha1_files([(_input, _output)], [], password, write = True)
+get_sha1_files([(_input, _output)], [], password, write=True, docs_dir=root)
 
 [update-nb (Notebook to HTML converter)]
 parameter: notebook_files = list
@@ -199,23 +201,23 @@ stop_if(len(notebook_files) == 0)
 depends: executable('jupyter'), executable('sed'), executable('perl'), Py_Module('jupyter_contrib_nbextensions', autoinstall=True), paths(notebook_files)
 from jnbinder import get_base_link, get_sha1_files
 input: notebook_files, group_by = 1, paired_with = ['nb_info']
-output: [f"docs/{get_base_link(x)}" for x in notebook_files], group_by = 1
+output: [f"{root}/{get_base_link(x)}" for x in notebook_files], group_by = 1
 bash: expand = "${ }", stderr = False
-  jupyter nbconvert ${_input:e} --output ${_output:ae} --template docs/${str(_input).split(os.path.sep)[0]}.tpl
+  jupyter nbconvert ${_input:e} --output ${_output:ae} --template ${root}/${str(_input).split(os.path.sep)[0]}.tpl
   num=`grep -n -Fx '''${footer}''' ${_output:e} | tail -1 | sed 's/\([0-9]*\).*/\1/'`
   perl -i -lpe 'print "${_nb_info[0]}" if $. == '"$num"'+1' ${_output:e}
   if [[ ${remove_whiteline} -gt 0 ]]; then
      perl -i -ne 'print if /\S/' ${_output:e}
   fi
 
-get_sha1_files([], [(_input, _output)], password, write = True)
+get_sha1_files([], [(_input, _output)], password, write=True, docs_dir=root)
 
 [update-wf (Pipeline to HTML converter)]
 parameter: pipeline_files = list
 stop_if(len(pipeline_files) == 0)
 from jnbinder import get_base_link
 input: pipeline_files, group_by = 1
-output: [f"docs/{get_base_link(x, 'pipeline.html')}" for x in pipeline_files], group_by = 1
+output: [f"{root}/{get_base_link(x, 'pipeline.html')}" for x in pipeline_files], group_by = 1
 run: expand = "${ }", stdout = False, stderr = False
   sos convert ${_input} ${_output}
 
@@ -227,7 +229,7 @@ parameter: binders = list
 parameter: exclude_file = list
 parameter: homepage = str
 input: dynamic(notebook_files + pipeline_files + index_files)
-output: 'docs/js/docs.js'
+output: f'{root}/js/docs.js'
 from jnbinder import get_toc
 out = [get_toc(x, exclude_file + [homepage]) for x in binders]
 with open(_output, 'w') as f:
@@ -237,11 +239,11 @@ with open(_output, 'w') as f:
 parameter: generated_files = list
 parameter: url = str
 input: generated_files
-output: 'docs/site_libs/tipuesearch/tipuesearch_content.js'
+output: f'{root}/site_libs/tipuesearch/tipuesearch_content.js'
 from jnbinder import generate_tipue_content
-generate_tipue_content(generated_files, url, 'docs/')
-with open('docs/search.html', 'w') as f:
-  f.write(open('docs/site_libs/tipuesearch/search.html').read())
+generate_tipue_content(generated_files, url, f'{root}/')
+with open(f'{root}/search.html', 'w') as f:
+  f.write(open(f'{root}/site_libs/tipuesearch/search.html').read())
 
 [remove-obsolete (Obsolete files remover)]
 parameter: conf = dict()
@@ -251,17 +253,17 @@ parameter: pipeline_files = list
 parameter: binders = list
 parameter: generated_files = list
 parameter: password = str
-output: 'docs/MANIFEST'
+output: f'{root}/MANIFEST'
 from jnbinder import get_sha1_files, get_base_link
 if os.path.isfile(_output):
   old_files = [x.strip() for x in open(_output).readlines()]
-  all_f1 = [(x, y) for x, y in zip(index_files + [conf['homepage']], [f'docs/{x}.html' for x in binders if x not in conf['hide_navbar']] + (['docs/index.html'] if not conf['skip_homepage'] else []))]
-  all_f2 = [(x, y) for x, y in zip(notebook_files,  [f'docs/{get_base_link(x)}' for x in notebook_files])]
-  all_f3 = [(x, y) for x, y in zip(pipeline_files, [f'docs/{get_base_link(x, "pipeline.html")}' for x in notebook_files])]
+  all_f1 = [(x, y) for x, y in zip(index_files + [conf['homepage']], [f'{root}/{x}.html' for x in binders if x not in conf['hide_navbar']] + ([f'{root}/index.html'] if not conf['skip_homepage'] else []))]
+  all_f2 = [(x, y) for x, y in zip(notebook_files,  [f'{root}/{get_base_link(x)}' for x in notebook_files])]
+  all_f3 = [(x, y) for x, y in zip(pipeline_files, [f'{root}/{get_base_link(x, "pipeline.html")}' for x in notebook_files])]
 
-  sha1_files = [f"docs/{item.rsplit('_', 1)[-1][:-5]}/{path(item.rsplit('_', 1)[0]):b}.html" if item.rsplit('_', 1)[-1][:-5] != 'docs' else f"docs/{path(item.rsplit('_', 1)[0]):b}.html" for item in get_sha1_files(all_f1, all_f2 + all_f3, password)]
+  sha1_files = [f"{root}/{item.rsplit('_', 1)[-1][:-5]}/{path(item.rsplit('_', 1)[0]):b}.html" if item.rsplit('_', 1)[-1][:-5] != root else f"{root}/{path(item.rsplit('_', 1)[0]):b}.html" for item in get_sha1_files(all_f1, all_f2 + all_f3, password, docs_dir=root)]
   for item in [x for x in old_files if not x in generated_files + sha1_files]:
-    if item == 'docs/index.html':
+    if item == f'{root}/index.html':
       continue
     try:
       os.remove(item)
@@ -276,15 +278,15 @@ with open(_output, 'w') as f:
 parameter: conf = dict()
 stop_if(conf['release_message'] is None)
 try:
-  get_output(f'''cd docs && git add . && git commit --no-verify -m "{conf['release_message']}" && git push --no-verify''')
+  get_output(f'''cd {root} && git add . && git commit --no-verify -m "{conf['release_message']}" && git push --no-verify''')
   get_output(conf['post_release_actions'])
 except:
   pass
 
 [clean]
 # remove generated files
-depends: 'docs/MANIFEST'
-for item in [x.strip() for x in open('docs/MANIFEST').readlines()]:
+depends: f'{root}/MANIFEST'
+for item in [x.strip() for x in open(f'{root}/MANIFEST').readlines()]:
   try:
     os.remove(item)
   except OSError:
