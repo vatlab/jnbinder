@@ -119,7 +119,7 @@ download: decompress = True, dest_file = 'jnbinder-master.zip'
 [setup-jnbinder]
 depends: 'jnbinder-master/README.md'
 run: expand = True
-  mkdir -p ${root}
+  mkdir -p {root}
   yes | cp -rf jnbinder-master/docs/* {root}/
   cp jnbinder-master/config.yml config.default.yml
   rm -rf jnbinder-master*
