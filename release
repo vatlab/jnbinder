@@ -246,7 +246,9 @@ with open('docs/search.html', 'w') as f:
 [remove-obsolete (Obsolete files remover)]
 parameter: conf = dict()
 parameter: index_files = list
-parameter: binders_files = list
+parameter: notebook_files = list
+parameter: pipeline_files = list
+parameter: binders = list
 parameter: generated_files = list
 parameter: password = str
 output: 'docs/MANIFEST'
@@ -308,7 +310,7 @@ sos_run('update-nb', nb_info=[get_commit_info(x[:-5] + 'Rmd' if path(x).with_suf
 sos_run('update-wf', pipeline_files=pipeline_files)
 sos_run('update-toc', binders=binders, notebook_files=notebook_files, index_files=index_files, pipeline_files=pipeline_files, homepage=conf['homepage'], exclude_file=conf['exclude_file'])
 sos_run('update-search', url=conf['site_url'], generated_files=generated_files)
-sos_run('remove-obsolete', conf=conf, binders=binders, index_files=index_files, generated_files=generated_files, password=password)
+sos_run('remove-obsolete', conf=conf, binders=binders, notebook_files=notebook_files, pipeline_files=pipeline_files, index_files=index_files, generated_files=generated_files, password=password)
 sos_run('release-website', conf=conf)
 
 [default_4 (Clean up)]
