@@ -31,15 +31,30 @@ Copyright 2016 Gao Wang
     jnbinder -h
     ```
 
-4. Inside your new project directory, clean up and then re-generate
-   all the webpages using the SoS release script:
+4. If it is your first time using this program please run the following to initialize:
+
+    ```bash
+    jnbinder setup-jnbinder
+    ```
+   Then open up the file `config.yml` and edit it, particularly set the `include_dir` to point to where your Jupyter notebooks are.
+   A simplified example can be found [here](https://github.com/stephenslab/gtex-eqtls/blob/master/config.yml).
+
+5. Inside your new project directory, generate
+   all the webpages using the following command:
+
+    ```bash
+    jnbinder
+    ```
+
+6. Next time when you generate the files, if you want to skip existing pages please type `jnbinder -s build`. 
+   If you want to force generate every page from scratch you can use:
 
    ```bash
    jnbinder clean
    jnbinder -s force
    ```
 
-## Run source code
+## [For advanced users only] Run source code
 
 ### Step 0: install dependencies
 
