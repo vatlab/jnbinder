@@ -2,10 +2,10 @@
 #fileformat=SOS1.0
 import os, sys, glob
 
-parameter: root = 'docs'
+parameter: root = path('docs')
 parameter: pip = 'pip'
 parameter: overwrite_rmd = False
-sys.path.append(root)
+sys.path.append(f'{root:a}')
 
 [default_1 (Configure website): shared = ['conf', 'binders', 'notebook_files', 'rmd_files', 'index_files', 'pipeline_files', 'generated_files', 'password', 'status']]
 depends: Py_Module('bs4', autoinstall=True), Py_Module('date_parser', autoinstall=True)
@@ -42,13 +42,10 @@ status = 0
 try:
   from jnbinder import compare_versions, update_gitignore, get_base_link
 except Exception as e:
+  status = 1
   if 'jnbinder' in str(e):
      sos_run('setup-jnbinder')
-     try:
-       from jnbinder import compare_versions, update_gitignore
-     except Exception as e:
-       status = 1
-       fail_if(status, msg = str(e))
+     fail_if(status, msg = f"``jnbinder`` program has just been installed to ``{root}`` but you need to configure ``config.yml`` and rerun this program.")
   else:
      raise RuntimeError('{}. You can try `pip install` to install the missing module.'.format(e))
 if os.path.isdir(".git"):
