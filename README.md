@@ -19,7 +19,8 @@ Copyright 2016 Gao Wang
    ```bash
    docker pull gaow/jnbinder
    ```
-3. Load the docker command to generate web-pages:
+3. Download the script [`jnbinder_docker.sh`](https://github.com/vatlab/jnbinder/blob/master/jnbinder_docker.sh) 
+   from this repository to your project folder and load it:
 
      ```bash
      source jnbinder_docker.sh
