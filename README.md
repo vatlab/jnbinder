@@ -57,6 +57,8 @@ Copyright 2016 Gao Wang
 
 ## [For advanced users only] Run source code
 
+**This works only with Jupyter version 2.x**
+
 ### Step 0: install dependencies
 
 ```
