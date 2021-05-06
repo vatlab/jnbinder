@@ -9,3 +9,5 @@ RUN pip install bs4 date_parser jupyter_contrib_nbextensions ipyrmd sos==0.21.8
 COPY release /usr/local/bin/jnbinder
 
 USER jovyan
+
+# docker build -t gaow/jnbinder -f jnbinder.dockerfile .

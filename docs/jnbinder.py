@@ -1073,7 +1073,10 @@ def make_index_nb(path, exclude, long_description = False, reverse_alphabet = Fa
             date_section = tmp
             add_date_section = True
         with open(fn) as f:
-            data = json.load(f)
+            try:
+                data = json.load(f)
+            except Exception as e:
+                raise ValueError(f'Failed to load file {fn}: {e}')
         try:
             source = [x.strip() for x in data["cells"][0]["source"] if x.strip()]
             if long_description and source[0].startswith('#') and len(source) >= 2 and not source[1].startswith('#'):
