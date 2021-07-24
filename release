@@ -5,6 +5,7 @@ import os, sys, glob
 parameter: root = path('docs')
 parameter: pip = 'pip'
 parameter: overwrite_rmd = False
+parameter: hide_code = False
 sys.path.append(f'{root:a}')
 
 [default_1 (Configure website): shared = ['conf', 'binders', 'notebook_files', 'rmd_files', 'index_files', 'pipeline_files', 'generated_files', 'password', 'status']]
@@ -183,7 +184,7 @@ output_files = [f'{root}/{x}.html' for x in binders if x not in hide_navbar] + (
 input: dynamic(input_files), group_by = 1
 output: output_files, group_by = 1
 bash: expand = "${ }", stderr = False
-  jupyter nbconvert ${_input:e} --output ${_output:ae} --template ${root}/index.tpl
+  jupyter nbconvert ${_input:e} --output ${_output:ae} --template ${root}/index.tpl ${"--no-input" if hide_code else ""}
   # sed -i 's/<div class="prompt input_prompt">In&nbsp;\[[0-9]\]:<\/div>//g' ${_output:e}
   if [[ ${remove_whiteline} -gt 0 ]]; then
      perl -i -ne 'print if /\S/' ${_output:e}
@@ -203,7 +204,7 @@ from jnbinder import get_base_link, get_sha1_files
 input: notebook_files, group_by = 1, paired_with = ['nb_info']
 output: [f"{root}/{get_base_link(x)}" for x in notebook_files], group_by = 1
 bash: expand = "${ }", stderr = False
-  jupyter nbconvert ${_input:e} --output ${_output:ae} --template ${root}/${str(_input).split(os.path.sep)[0]}.tpl
+  jupyter nbconvert ${_input:e} --output ${_output:ae} --template ${root}/${str(_input).split(os.path.sep)[0]}.tpl ${"--no-input" if hide_code else ""}
   num=`grep -n -Fx '''${footer}''' ${_output:e} | tail -1 | sed 's/\([0-9]*\).*/\1/'`
   perl -i -lpe 'print "${_nb_info[0]}" if $. == '"$num"'+1' ${_output:e}
   if [[ ${remove_whiteline} -gt 0 ]]; then
@@ -299,7 +300,7 @@ input: rmd_files, group_by=1, concurrent=True
 output:f'{_input:n}.ipynb'
 run: expand = "${ }", stdout = False, stderr = False
   ipyrmd --to ipynb --from Rmd -y -o ${_output} ${_input}
-  jupyter nbconvert --to notebook --execute ${_output} --ExecutePreprocessor.timeout=360
+  jupyter nbconvert --to notebook --execute ${_output} --ExecutePreprocessor.timeout=360 ${"--no-input" if hide_code else ""}
   mv ${_output:nn}.nbconvert.ipynb ${_output} 
 
 [default_3 (Build website)]
