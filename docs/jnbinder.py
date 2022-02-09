@@ -1201,6 +1201,8 @@ def make_empty_nb(name):
 
 def protect_page(page, page_tpl, password, write, docs_dir='docs'):
     # page: docs/{name}
+    # in case input page name is a path object
+    page = str(page)
     page_dir, page_file = os.path.split(page)
     page_file = '/'.join(page.split('/')[1:])
     secret = page_dir + '/' + sha1((password + page_file).encode()).hexdigest() + '.html'
